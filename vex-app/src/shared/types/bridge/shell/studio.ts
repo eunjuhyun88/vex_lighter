@@ -1,6 +1,41 @@
 import type { Result } from "../../../ipc/result.js";
 import type { StudioBridgeReadiness } from "../../../schemas/studio-bridge-readiness.js";
 import type { StudioHostStatus } from "../../../schemas/studio.js";
+import type {
+  AgentScanImportConfirmInput,
+  AgentScanImportConfirmResult,
+  AgentScanImportEvent,
+  AgentScanImportPreview,
+  AgentScanImportPreviewInput,
+  AgentScanImportRejectInput,
+  AgentScanImportRejectResult,
+  AgentScanImportReview,
+} from "../../../schemas/agentscan-import.js";
+import type {
+  PublicationConfirmInput,
+  PublicationConfirmResult,
+  PublicationIntentEvent,
+  PublicationIntentReview,
+  PublicationPreview,
+  PublicationPreviewInput,
+  PublicationRejectResult,
+} from "../../../schemas/agentscan-publication.js";
+import type {
+  LocalStrategyRuntimeAcquireInput,
+  LocalStrategyRuntimeAcquireResult,
+  LocalStrategyRuntimeGetRunInput,
+  LocalStrategyRuntimeGetRunResult,
+  LocalStrategyRuntimeRevokeInput,
+  LocalStrategyRuntimeRevokeResult,
+  LocalStrategyRuntimeStartInput,
+  LocalStrategyRuntimeStartResult,
+  LocalStrategyRuntimeStopInput,
+  LocalStrategyRuntimeStopResult,
+} from "../../../schemas/agentscan-local-runtime.js";
+import type {
+  AgentscanVercelRuntimeAcknowledgeInput,
+  AgentscanVercelRuntimeAcknowledgeResult,
+} from "../../../schemas/agentscan-vercel-runtime.js";
 
 /**
  * `vex.studio.*` - the read-only Vex Studio surface.
@@ -42,4 +77,20 @@ export interface StudioBridge {
    * version tokens. It never carries a filesystem path.
    */
   readonly getBridgeReadiness: () => Promise<Result<StudioBridgeReadiness>>;
+  readonly agentscanImportGetPending: () => Promise<Result<AgentScanImportReview | null>>;
+  readonly agentscanImportPreview: (input: AgentScanImportPreviewInput) => Promise<Result<AgentScanImportPreview>>;
+  readonly agentscanImportConfirm: (input: AgentScanImportConfirmInput) => Promise<Result<AgentScanImportConfirmResult>>;
+  readonly agentscanImportReject: (input: AgentScanImportRejectInput) => Promise<Result<AgentScanImportRejectResult>>;
+  readonly onAgentscanImportIntent: (cb: (event: AgentScanImportEvent) => void) => () => void;
+  readonly agentscanPublicationGetPending: () => Promise<Result<PublicationIntentReview | null>>;
+  readonly agentscanPublicationPreview: (input: PublicationPreviewInput) => Promise<Result<PublicationPreview>>;
+  readonly agentscanPublicationConfirm: (input: PublicationConfirmInput) => Promise<Result<PublicationConfirmResult>>;
+  readonly agentscanPublicationReject: (input: { intentId: string }) => Promise<Result<PublicationRejectResult>>;
+  readonly onAgentscanPublicationIntent: (cb: (event: PublicationIntentEvent) => void) => () => void;
+  readonly agentscanLocalRuntimeAcquire: (input: LocalStrategyRuntimeAcquireInput) => Promise<Result<LocalStrategyRuntimeAcquireResult>>;
+  readonly agentscanLocalRuntimeStart: (input: LocalStrategyRuntimeStartInput) => Promise<Result<LocalStrategyRuntimeStartResult>>;
+  readonly agentscanLocalRuntimeGetRun: (input: LocalStrategyRuntimeGetRunInput) => Promise<Result<LocalStrategyRuntimeGetRunResult>>;
+  readonly agentscanLocalRuntimeStop: (input: LocalStrategyRuntimeStopInput) => Promise<Result<LocalStrategyRuntimeStopResult>>;
+  readonly agentscanLocalRuntimeRevoke: (input: LocalStrategyRuntimeRevokeInput) => Promise<Result<LocalStrategyRuntimeRevokeResult>>;
+  readonly agentscanVercelRuntimeAcknowledge: (input: AgentscanVercelRuntimeAcknowledgeInput) => Promise<Result<AgentscanVercelRuntimeAcknowledgeResult>>;
 }

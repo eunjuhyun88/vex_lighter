@@ -74,6 +74,7 @@ import { installLighterLeverageService } from "./lighter/leverage-execution.js";
 import { shutdownLighterPublicMarkets } from "./lighter/public-market-stream.js";
 import { shutdownLighterCandleStreams } from "./lighter/candle-stream.js";
 import { setupStudioHostStatusBridge } from "./studio/host-status-bridge.js";
+import { setupAgentscanLocalReadonlyBridge } from "./agentscan/local-readonly-owner.js";
 import { setupBoardLiveService } from "./market/board-live-owner.js";
 import { lockSecretSession, reopenStudioHostIfSafe } from "./secrets/session.js";
 import { shutdownStudioMcpHost, startStudioMcpHost } from "./studio/mcp-host.js";
@@ -300,6 +301,13 @@ async function initializeMainRuntime(): Promise<void> {
   // drains the board read caches and the DexScreener transport, so it belongs
   // to the ORDERED quit task below, not to a concurrent globalCleanup task.
   const teardownAgentBridges = registerAllIpcHandlers();
+
+  // 6b. AgentScan loopback listener — bind once after IPC registration and
+  // keep it alive until quit. Its request admission gate remains closed while
+  // the vault is locked or Studio is not ready, returning typed 423 without
+  // exposing a session token or local data.
+  const stopAgentscanLocalBridge = setupAgentscanLocalReadonlyBridge(!app.isPackaged);
+  globalCleanup.add(stopAgentscanLocalBridge, "agentscan-local-readonly-bridge");
 
   // 6-updater. User-triggered updater (M13): own the electron-updater event
   // stream so the renderer's update card reflects live status. Download +
@@ -546,12 +554,6 @@ async function initializeMainRuntime(): Promise<void> {
   // engine preflight and `runStudioCall` refuse on that.
   await awaitStudioRuntimeReady();
 
-  // THE ONE BIND, and it is independent of the vault and of the barrier above.
-  // The listener comes up here because the executor is configured by now
-  // (`registerAllIpcHandlers`), and it stays up until quit: a locked or unready
-  // Vex answers a connect with a typed refusal that carries no project bytes,
-  // which is the honest answer a bridge cannot derive from `ECONNREFUSED`.
-  // ADMISSION starts locked regardless of what happens here.
   void startStudioMcpHost();
   // A session that was already unlocked before the host existed (a restored
   // session, a fast wizard) has no other site that would open admission. The

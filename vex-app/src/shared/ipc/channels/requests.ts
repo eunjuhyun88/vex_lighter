@@ -657,6 +657,23 @@ export const CH = {
      * tokens. It never learns where the binary is, or is not.
      */
     bridgeReadiness: "vex:studio:bridgeReadiness",
+    agentscanImportGetPending: "vex:studio:agentscanImportGetPending",
+    agentscanImportPreview: "vex:studio:agentscanImportPreview",
+    agentscanImportConfirm: "vex:studio:agentscanImportConfirm",
+    agentscanImportReject: "vex:studio:agentscanImportReject",
+    agentscanPublicationGetPending: "vex:studio:agentscanPublicationGetPending",
+    agentscanPublicationPreview: "vex:studio:agentscanPublicationPreview",
+    agentscanPublicationConfirm: "vex:studio:agentscanPublicationConfirm",
+    agentscanPublicationReject: "vex:studio:agentscanPublicationReject",
+    // VEX-authoritative local-only strategy runtime. Its opaque capabilities
+    // are minted, scoped and revoked in Electron main, never by the browser
+    // loopback bridge.
+    agentscanLocalRuntimeAcquire: "vex:studio:agentscanLocalRuntimeAcquire",
+    agentscanLocalRuntimeStart: "vex:studio:agentscanLocalRuntimeStart",
+    agentscanLocalRuntimeGetRun: "vex:studio:agentscanLocalRuntimeGetRun",
+    agentscanLocalRuntimeStop: "vex:studio:agentscanLocalRuntimeStop",
+    agentscanLocalRuntimeRevoke: "vex:studio:agentscanLocalRuntimeRevoke",
+    agentscanVercelRuntimeAcknowledge: "vex:studio:agentscanVercelRuntimeAcknowledge",
   },
 
   /**

@@ -54,6 +54,8 @@ export const EV = {
    */
   studio: {
     hostStatus: "vex:event:studio:hostStatus",
+    agentscanImportIntent: "vex:event:studio:agentscanImportIntent",
+    agentscanPublicationIntent: "vex:event:studio:agentscanPublicationIntent",
   },
 
   /**

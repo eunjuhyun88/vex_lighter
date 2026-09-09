@@ -32,6 +32,9 @@ import { registerLighterTradingHandlers } from "./lighter-trading.js";
 import { registerLighterDeskHandlers } from "./lighter-desk.js";
 import { registerLighterOnboardingHandlers } from "./lighter-onboarding.js";
 import { registerStudioHandlers } from "./studio.js";
+import { registerAgentscanImportHandlers } from "./agentscan-import.js";
+import { registerAgentscanPublicationHandlers } from "./agentscan-publication.js";
+import { registerAgentscanLocalRuntimeHandlers } from "./agentscan-local-runtime.js";
 import { registerStudioBridgeReadinessHandlers } from "./studio-bridge-readiness.js";
 import { registerStudioFilesHandlers } from "./studio-files.js";
 import { registerStudioSearchHandlers } from "./studio-search.js";
@@ -182,6 +185,9 @@ export function registerAllIpcHandlers(): () => Promise<void> {
   // cache; the transitions are published by the MCP host itself and broadcast
   // by the host-status bridge, started in index.ts.
   teardowns.push(...registerStudioHandlers());
+  teardowns.push(...registerAgentscanImportHandlers());
+  teardowns.push(...registerAgentscanPublicationHandlers());
+  teardowns.push(...registerAgentscanLocalRuntimeHandlers());
   // B1.6: does this installation have a `vex-mcp` bridge binary at all? A
   // read-only probe (one `access`, plus the Go pin and `go env GOVERSION` only
   // on a from-source run whose binary is missing) behind the Studio welcome
