@@ -36,7 +36,7 @@ export function canWriteLighterAnalysisStorage(): boolean {
   if (storage === undefined) return false;
   const probeKey = `${LIGHTER_ANALYSIS_STORAGE_KEY}:probe`;
   try {
-    storage.setItem(probeKey, "1");
+    storage.setItem(probeKey, { state: {} as PersistedLighterAnalysis, version: 2 });
     storage.removeItem(probeKey);
     return true;
   } catch {

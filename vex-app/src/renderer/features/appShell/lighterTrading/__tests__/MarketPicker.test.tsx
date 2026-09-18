@@ -125,12 +125,12 @@ describe("market picker", () => {
   });
 
   it("recovers from malformed storage and keeps favorites usable if storage is denied", async () => {
-    localStorage.setItem("vex-lighter-analysis", "not-json");
+    window.localStorage.setItem("vex-lighter-analysis", "not-json");
     void useLighterAnalysisStore.persist.rehydrate();
     render(<MarketPicker {...baseProps} />);
     // Spy on the instance: the renderer test setup may substitute a plain
     // object for `localStorage`, which has no `Storage.prototype`.
-    vi.spyOn(localStorage, "setItem").mockImplementation(() => { throw new Error("unavailable"); });
+    vi.spyOn(window.localStorage, "setItem").mockImplementation(() => { throw new Error("unavailable"); });
     fireEvent.click(screen.getByRole("button", { name: "Add BTC Perpetual to favorites" }));
     expect(screen.getByRole("button", { name: "Remove BTC Perpetual from favorites" })).toBeTruthy();
     await waitFor(() => expect(screen.getByText(/Favorites are saved for this view only/)).toBeTruthy());
