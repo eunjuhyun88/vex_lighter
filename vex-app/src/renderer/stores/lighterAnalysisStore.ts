@@ -30,6 +30,20 @@ interface LighterAnalysisState extends PersistedLighterAnalysis {
   saveDesk: (patch: Partial<LighterDeskPreferences>) => void;
 }
 
+/** Check the same persisted storage without exposing browser storage to UI components. */
+export function canWriteLighterAnalysisStorage(): boolean {
+  const storage = createJSONStorage<PersistedLighterAnalysis>(() => localStorage);
+  if (storage === undefined) return false;
+  const probeKey = `${LIGHTER_ANALYSIS_STORAGE_KEY}:probe`;
+  try {
+    storage.setItem(probeKey, "1");
+    storage.removeItem(probeKey);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const validScope = (value: string): boolean => /^(?:core|rhc|unknown):[A-Za-z0-9._:/-]{1,48}$/.test(value);
 const validFavorite = (value: unknown): value is string => typeof value === "string"
   && /^(?:core|rhc):(?:perp|spot):\d{1,5}:\d{1,5}:\d{1,5}:[A-Za-z0-9._:/-]{1,48}$/.test(value);

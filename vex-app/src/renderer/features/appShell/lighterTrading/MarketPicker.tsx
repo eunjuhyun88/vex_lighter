@@ -7,18 +7,7 @@ import { marketIdentity } from "./market-selection.js";
 import { classifyLighterMarket, marketProductLabel, type LighterMarketSection } from "./market-classification.js";
 import { NO_VALUE, formatBaseAmount, formatNumber, formatPrice, formatQuoteVolume, marketSymbols } from "./format.js";
 
-import { LIGHTER_ANALYSIS_STORAGE_KEY, useLighterAnalysisStore } from "../../../stores/lighterAnalysisStore.js";
-
-function canWriteFavoritesStorage(): boolean {
-  try {
-    const probeKey = `${LIGHTER_ANALYSIS_STORAGE_KEY}:probe`;
-    window.localStorage.setItem(probeKey, "1");
-    window.localStorage.removeItem(probeKey);
-    return true;
-  } catch {
-    return false;
-  }
-}
+import { canWriteLighterAnalysisStorage, LIGHTER_ANALYSIS_STORAGE_KEY, useLighterAnalysisStore } from "../../../stores/lighterAnalysisStore.js";
 
 type SortColumn = "market" | "price" | "change" | "volume" | "interest";
 type Sort = { readonly column: SortColumn; readonly direction: "asc" | "desc" };
@@ -124,7 +113,7 @@ export function MarketPicker({ environment, markets, loading = false, selectedMa
     if (next.has(key)) next.delete(key);
     else if (next.size < 1_000) next.add(key);
     const saved = useLighterAnalysisStore.getState().saveFavorites([...next]);
-    setStorageUnavailable(!saved || !canWriteFavoritesStorage());
+    setStorageUnavailable(!saved || !canWriteLighterAnalysisStorage());
   };
 
   const onKeyDown = (event: KeyboardEvent): void => {
