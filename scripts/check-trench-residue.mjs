@@ -223,10 +223,6 @@ const ALLOWLIST = [
     reason: "records that the on-chain resolver lane went with the protocol that signed over image bytes",
   },
   {
-    prefix: "scripts/deleted-test-allowlist.mjs",
-    reason: "names every test whose subject this retirement deleted",
-  },
-  {
     prefix: "scripts/check-trench-residue.mjs",
     reason: "this gate",
   },
