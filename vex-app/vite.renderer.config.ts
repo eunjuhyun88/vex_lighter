@@ -8,6 +8,7 @@ import { defineConfig, type Plugin } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rendererRoot = path.resolve(__dirname, "src/renderer");
+const rendererPort = Number.parseInt(process.env.VEX_RENDERER_PORT ?? "5173", 10);
 
 // JSON read instead of `import pkg from "./package.json" assert {...}` —
 // import-assert syntax has drifted between TS/Node versions; readFileSync
@@ -38,7 +39,7 @@ function devCspRelaxer(isDev: boolean): Plugin {
     // prod CSP in src/renderer/index.html.
     "img-src 'self' data: https:",
     "font-src 'self'",
-    "connect-src 'self' ws://127.0.0.1:5173 http://127.0.0.1:5173",
+    `connect-src 'self' ws://127.0.0.1:${rendererPort} http://127.0.0.1:${rendererPort}`,
     // Kept in step with the prod CSP: the Studio viewer's shiki worker needs
     // this in dev too, and a dev session that silently lost highlighting would
     // be debugged as a code bug rather than as a policy one.
@@ -116,12 +117,12 @@ export default defineConfig(({ command }) => ({
 
   server: {
     host: "127.0.0.1",
-    port: 5173,
+    port: rendererPort,
     strictPort: true,
     hmr: {
       host: "127.0.0.1",
-      port: 5173,
-      clientPort: 5173,
+      port: rendererPort,
+      clientPort: rendererPort,
       overlay: true,
     },
   },

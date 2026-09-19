@@ -39,7 +39,7 @@ export function registerTerminalClipboardFileHandlers(): Array<() => void> {
         },
       });
     } catch { return ok({ kind: "refused", reason: "terminal_clipboard_files_unavailable" }); }
-    const origin = app.isPackaged || process.env["VEX_E2E_LOAD_BUILT"] === "1" ? "app://vex" : "http://127.0.0.1:5173";
+  const origin = app.isPackaged || process.env["VEX_E2E_LOAD_BUILT"] === "1" ? "app://vex" : `http://127.0.0.1:${process.env["VEX_RENDERER_PORT"] ?? "5173"}`;
     const url = `${origin}/terminal-clipboard-files.html#${requestId}`;
     window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
     window.webContents.on("will-navigate", (event, destination) => { if (destination !== url) event.preventDefault(); });

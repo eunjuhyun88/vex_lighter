@@ -24,7 +24,7 @@ export function createTerminalLinkConsentWindow(parentContents: WebContents, pro
   win.webContents.on("will-redirect", event => { event.preventDefault(); win.close(); });
   win.once("ready-to-show", () => { if (!win.isDestroyed()) { win.show(); win.focus(); } });
   win.once("closed", () => { if (!parent.isDestroyed()) { parent.focus(); parent.webContents.focus(); } });
-  const origin = app.isPackaged || process.env["VEX_E2E_LOAD_BUILT"] === "1" ? APP_ORIGIN : "http://127.0.0.1:5173";
+  const origin = app.isPackaged || process.env["VEX_E2E_LOAD_BUILT"] === "1" ? APP_ORIGIN : `http://127.0.0.1:${process.env["VEX_RENDERER_PORT"] ?? "5173"}`;
   // Fragment is display data only. Main never trusts it back and never logs it.
   void win.loadURL(`${origin}/terminal-link-consent.html#${encodeURIComponent(JSON.stringify(proposal))}`)
     .catch(() => { if (!win.isDestroyed()) win.close(); });

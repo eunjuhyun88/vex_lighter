@@ -139,7 +139,8 @@ function sanitizeUrlForLog(raw: string): string {
 
 function isAllowedAppUrl(raw: string): boolean {
   if (raw.startsWith(`${APP_ORIGIN}/`) || raw === APP_ORIGIN) return true;
-  if (!app.isPackaged && raw.startsWith("http://127.0.0.1:5173/")) return true;
+  const devRendererOrigin = `http://127.0.0.1:${process.env.VEX_RENDERER_PORT ?? "5173"}/`;
+  if (!app.isPackaged && raw.startsWith(devRendererOrigin)) return true;
   return false;
 }
 
@@ -315,7 +316,7 @@ export async function createMainWindow(): Promise<BrowserWindow> {
   if (loadBuiltBundle) {
     await win.loadURL(`${APP_ORIGIN}/index.html`);
   } else {
-    await win.loadURL("http://127.0.0.1:5173/");
+    await win.loadURL(`http://127.0.0.1:${process.env.VEX_RENDERER_PORT ?? "5173"}/`);
   }
 
   return win;
