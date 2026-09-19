@@ -22,7 +22,7 @@
     "prebuild": "pnpm run build:assets",
     "build": "pnpm run lint && pnpm run build:main && pnpm run build:preload && pnpm run build:pty-host && pnpm run build:renderer",
     "postbuild": "node scripts/check-build-artifacts.mjs",
-    "dev:renderer": "vite --config vite.renderer.config.ts",
+    "dev:renderer": "VEX_RENDERER_PORT=${VEX_RENDERER_PORT:-5274} vite --config vite.renderer.config.ts",
     "dev:main:watch": "vite build --config vite.main.config.ts --watch",
     "dev:preload:watch": "concurrently --kill-others \"vite build --config vite.preload.config.ts --watch\" \"vite build --config vite.preload.config.ts --mode terminal-link-consent --watch\" \"vite build --config vite.preload.config.ts --mode terminal-clipboard-files --watch\"",
     "dev:pty-host:watch": "vite build --config vite.pty-host.config.ts --watch",
