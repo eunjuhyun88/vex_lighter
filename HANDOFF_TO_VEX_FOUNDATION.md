@@ -1,6 +1,6 @@
-# Lighter Changes Handoff
+# VEX Foundation Integration Handoff
 
-This branch contains the Lighter trading and Vex session changes prepared for review in `eunjuhyun88/vex_lighter`.
+This branch is based on the latest `Vex-Foundation/Vex` `main` (`09adada7c`, app version `0.2.12`) and combines the validated local Lighter work with the AgentScan import, publication, and local runtime flows.
 
 ## Scope
 
@@ -10,6 +10,8 @@ This branch contains the Lighter trading and Vex session changes prepared for re
 - Kept the Vex approval step visible before any order execution.
 - Improved event follow-up actions and reduced hidden or duplicated controls.
 - Fixed CI timing races in lexical retrieval and MarketPicker tests.
+- Added the AgentScan Studio import, publication, and local strategy runtime IPC and renderer hosts.
+- Added the per-install runtime reporting and publisher key contract required by the local AgentScan flow.
 
 ## Intended user flow
 
@@ -22,25 +24,24 @@ This branch contains the Lighter trading and Vex session changes prepared for re
 
 ## Validation
 
-Targeted checks completed during this work:
+Checks completed on this integration branch:
 
-- Lexical retrieval evaluation tests.
-- Lighter `MarketPicker` tests.
-- Relevant Lighter renderer tests.
-- Relevant approval, leverage, and event flow tests.
-- Type checking, build, and package checks where available.
+- `pnpm run lint` — passed.
+- `pnpm run build` — passed, including main, preload, pty-host, renderer, and artifact checks.
+- AgentScan main tests — 8/8 passed.
+- AgentScan renderer tests — 15/15 passed.
+- The full Lighter leverage test lane is blocked in this checkout because the Electron package has no downloaded `path.txt` binary; this is an environment setup issue, not a TypeScript or build failure.
 
 No real account order was submitted and no real account leverage was changed during validation.
 
 ## Integration notes
 
-This work should be reviewed against the latest official Vex `main` before merging. The changes are grouped here for handoff, but backend behavior, event/session flow, UI polish, and CI fixes can be split into smaller PRs if maintainers prefer.
+The canonical base is the official Vex `main`. The branch keeps the original local repositories untouched and is intended to be pushed as one reviewable integration branch before opening a PR to `Vex-Foundation/Vex`.
 
 The current branch is a review candidate. It is not a claim that every change has already been merged into `Vex-Foundation/Vex`.
 
 ## Known follow-up work
 
-- Rebase against the latest official Vex `main` before integration.
-- Re-run the complete CI matrix after the rebase.
-- Review the Lighter workspace architecture against the official `LighterTradingDialog` direction.
+- Install the Electron binary in CI/local setup, then rerun the complete Lighter test matrix.
+- Review the Lighter workspace architecture against the official product direction.
 - Verify provider, database, account-selection, timeout, and retry states in a configured runtime environment.
