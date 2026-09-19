@@ -104,9 +104,12 @@ const runtime = new LocalStrategyRuntime({
   resolveBinding,
   readPortfolio: (projectId) => getPortfolio({ scope: "project", projectId }),
   reporter: {
-    acknowledgeDeployment: acknowledgeLocalRuntimeDeployment,
+    acknowledgeDeployment: async (binding) => {
+      const result = await acknowledgeLocalRuntimeDeployment(binding);
+      return { deploymentUid: result.deploymentUid, receipt: result.receipt as never };
+    },
     startRun: startLocalRuntimeRun,
-    completeRun: completeLocalRuntimeRun,
+    completeRun: async (input) => completeLocalRuntimeRun(input) as never,
   },
 });
 

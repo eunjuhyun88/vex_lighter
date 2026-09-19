@@ -109,7 +109,7 @@ export function createPublisherClient(baseUrl: string, bearer: string, fetcher: 
     async acknowledgeVercelDeployment(input: ApiRecord) {
       const result = await post("/api/v1/vercel-runtime/deployments/ack", input);
       if (!uuid(result.deploymentUid) || !string(result.endpoint) || !string(result.healthEndpoint) || !digest(result.runtimeBundleDigest) || (result.status !== "ready" && result.status !== "active")) throw new PublisherApiError("invalid_response");
-      return { deploymentUid: result.deploymentUid, endpoint: result.endpoint, healthEndpoint: result.healthEndpoint, runtimeBundleDigest: result.runtimeBundleDigest, status: result.status };
+      return { deploymentUid: result.deploymentUid, endpoint: result.endpoint, healthEndpoint: result.healthEndpoint, runtimeBundleDigest: result.runtimeBundleDigest, status: result.status as "ready" | "active" };
     },
   };
 }
