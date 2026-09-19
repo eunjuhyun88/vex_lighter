@@ -69,7 +69,7 @@ export function MarketBar({
   // Mark, index, open interest, and funding exist only on the live stats
   // stream: the REST snapshot has no source for them. While the stream is
   // still (re)connecting they are pending, not absent, so they render muted
-  // and busy rather than as "—".
+  // and busy rather than as "-".
   const liveOnlyPending = liveStats === null
     && (streamStatus === "connecting" || streamStatus === "reconnecting");
   const tone = change === null ? undefined : change >= 0 ? "positive" : "negative";

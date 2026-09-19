@@ -7,8 +7,8 @@
  * handshake timeout while a socket is connecting, and pings on an interval to
  * detect a stalled connection. This module holds only that generic
  * bookkeeping (attempt counter, timers, give-up state) plus the pure backoff
- * formula. All domain logic — what "stale" means for a stream, what a ping
- * frame looks like, what status values mean, how to build the socket — stays
+ * formula. All domain logic - what "stale" means for a stream, what a ping
+ * frame looks like, what status values mean, how to build the socket - stays
  * in each stream file and is threaded through as callbacks/config so every
  * stream can keep its own behavior exactly as it was before this extraction.
  */

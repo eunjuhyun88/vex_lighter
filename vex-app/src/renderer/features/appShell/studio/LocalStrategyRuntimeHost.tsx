@@ -198,8 +198,8 @@ export function LocalStrategyRuntimeHost(): JSX.Element | null {
           {run.summary ? (
             <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
               <dt className="text-ink-tertiary">Live total</dt><dd>${run.summary.liveTotalUsd.toFixed(2)}</dd>
-              <dt className="text-ink-tertiary">Change</dt><dd>{run.summary.changeUsd === null ? "—" : `$${run.summary.changeUsd.toFixed(2)}`}</dd>
-              <dt className="text-ink-tertiary">Change %</dt><dd>{run.summary.changePercent === null ? "—" : `${run.summary.changePercent.toFixed(2)}%`}</dd>
+              <dt className="text-ink-tertiary">Change</dt><dd>{run.summary.changeUsd === null ? "-" : `$${run.summary.changeUsd.toFixed(2)}`}</dd>
+              <dt className="text-ink-tertiary">Change %</dt><dd>{run.summary.changePercent === null ? "-" : `${run.summary.changePercent.toFixed(2)}%`}</dd>
               <dt className="text-ink-tertiary">Wallets</dt><dd>{run.summary.walletCount}</dd>
             </dl>
           ) : null}

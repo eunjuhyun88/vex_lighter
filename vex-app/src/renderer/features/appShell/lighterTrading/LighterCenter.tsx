@@ -35,7 +35,7 @@ import { useSplitter } from "./useSplitter.js";
 
 const EMPTY_MARKETS: readonly LighterTradingMarket[] = [];
 
-/** The Lighter desk: chart, book over trades, ticket, account dock — the shell's center column. */
+/** The Lighter desk: chart, book over trades, ticket, account dock - the shell's center column. */
 export function LighterCenter(): JSX.Element {
   const theme = useUiStore((state) => state.theme);
   const desk = useLighterDesk();

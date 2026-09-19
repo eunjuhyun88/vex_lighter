@@ -1,4 +1,4 @@
-# Vex 셸 3모드 분리 설계 — Agent / Studio / Lighter
+# Vex 셸 3모드 분리 설계 - Agent / Studio / Lighter
 
 *작성 2026-09-17. 이 문서는 모달에서 셸 모드로 옮기기 전의 설계 기준과 제안이다. 구현 이후의 현재 상태 문서로 읽지 말 것. 기준 트리: `~/Projects/vex-2026-09-17` (main `7531273cc`, 0.2.10). 인용은 `vex-app/src` 기준 경로.*
 
@@ -23,17 +23,17 @@ vex-2026-09-17/
 ├─ bridge/               vex-mcp 브리지 바이너리 (Studio용)
 ├─ VEX_STUDIO.md         Studio 엔지니어링 정본
 └─ vex-app/              Electron 앱
-   ├─ src/main/          882 파일 · 20.6만 줄 — agent, lighter, studio, sessions, database, ipc, secrets, wallet …
-   ├─ src/renderer/      1,100 파일 · 23.4만 줄 — features/{appShell, wizard, setup, wallets, …}, stores, styles
-   ├─ src/shared/        234 파일 — zod 스키마 (IPC 경계 계약)
-   ├─ src/preload/       63 파일 — 채널 브리지
+   ├─ src/main/          882 파일 · 20.6만 줄 - agent, lighter, studio, sessions, database, ipc, secrets, wallet …
+   ├─ src/renderer/      1,100 파일 · 23.4만 줄 - features/{appShell, wizard, setup, wallets, …}, stores, styles
+   ├─ src/shared/        234 파일 - zod 스키마 (IPC 경계 계약)
+   ├─ src/preload/       63 파일 - 채널 브리지
    ├─ resources/migrations/  SQL 마이그레이션 (vex-agent에서 복사, 현재 최신 162)
    └─ docs/              설계 문서들 (이 문서 포함)
 ```
 
 ### 1.2 셸 프레임 (공통)
 
-- `features/appShell/AppShell.tsx` — 3열 CSS 그리드 `사이드바 | 센터 | 우측 트랙(BOOK)`. 폭은 `lib/shell-columns.ts`의 `computeShellColumns()`가 해결 (사이드바 264–420, BOOK 300–520, 센터 ≥ 640, 사이드바 자동 접힘 < 1024).
+- `features/appShell/AppShell.tsx` - 3열 CSS 그리드 `사이드바 | 센터 | 우측 트랙(BOOK)`. 폭은 `lib/shell-columns.ts`의 `computeShellColumns()`가 해결 (사이드바 264–420, BOOK 300–520, 센터 ≥ 640, 사이드바 자동 접힘 < 1024).
 - 모드 분기는 딱 두 곳: 사이드바(`StudioSidebar` vs `SessionsList`, `AppShell.tsx:263`) 와 센터(`StudioCenter` vs `SessionPanel`, `:305`).
 - `ShellStatusStrip` + `GlobalApprovals`는 모드와 무관하게 **한 번만** 마운트 (preload가 이벤트 종류당 구독자 1개만 허용).
 - `BookPanel.tsx`는 `runtimeMode` + `activeSessionId/activeProjectId`로 4갈래 분기해서 세션 스코프 / 프로젝트 스코프 / 웰컴 포트폴리오를 그림.
@@ -46,9 +46,9 @@ vex-2026-09-17/
 | 항목 | 현재 |
 |---|---|
 | 목적 | 사용자가 로컬 에이전트와 세션 단위로 대화. 에이전트가 제안 → 사용자가 승인 |
-| 사이드바 | `SessionsList` — 새 세션, 필터(All/Agent/Mission), 검색, 그룹(고정/오늘/어제/이전), $VEX 위젯, `SidebarProfile` 푸터 |
-| 센터 | `SessionPanel` — 히어로↔도킹을 같은 DOM에서 `data-phase`로 전환, 트랜스크립트, `ApprovalsRegion`, 미션 레일/컨트롤, 컴포저 |
-| 우측 | BOOK 레일 — 포트폴리오/포지션/지갑/세션 활동 카드 스택 (`book/`) |
+| 사이드바 | `SessionsList` - 새 세션, 필터(All/Agent/Mission), 검색, 그룹(고정/오늘/어제/이전), $VEX 위젯, `SidebarProfile` 푸터 |
+| 센터 | `SessionPanel` - 히어로↔도킹을 같은 DOM에서 `data-phase`로 전환, 트랜스크립트, `ApprovalsRegion`, 미션 레일/컨트롤, 컴포저 |
+| 우측 | BOOK 레일 - 포트폴리오/포지션/지갑/세션 활동 카드 스택 (`book/`) |
 | 세션 모델 | `sessions(mode: agent|mission, permission, title, pinned_at …)`. **종류/워크스페이스 구분 컬럼 없음** |
 | 진입 | 기본. Studio에서 `⌘⇧A` 또는 토글 |
 
@@ -62,11 +62,11 @@ vex-2026-09-17/
 | 항목 | 현재 |
 |---|---|
 | 목적 | **외부 코딩 에이전트**(Claude Code 등)가 MCP 소켓으로 Vex를 조종. 앱 안 UI는 채팅이 아니라 워크스페이스(터미널·파일탐색기·뷰어) |
-| 사이드바 | `StudioSidebar` — `SessionsList`와 요소 단위로 동일한 크롬, 내용만 Projects + Explorer |
-| 센터 | `StudioCenter` — 프로젝트 없으면 `StudioWelcome`, 있으면 keep-alive 워크스페이스(최대 4개, 숨김이지 언마운트 아님) |
+| 사이드바 | `StudioSidebar` - `SessionsList`와 요소 단위로 동일한 크롬, 내용만 Projects + Explorer |
+| 센터 | `StudioCenter` - 프로젝트 없으면 `StudioWelcome`, 있으면 keep-alive 워크스페이스(최대 4개, 숨김이지 언마운트 아님) |
 | 우측 | 같은 BOOK 레일, 스코프만 `{kind:"project"}` |
 | 상태 | `activeProjectId`(영속), 탐색기/터미널 레지스트리는 React 밖 모듈 |
-| 세션 | 프로젝트당 backing session 1개, `scope='vex_studio'` — 에이전트 목록에서 제외 |
+| 세션 | 프로젝트당 backing session 1개, `scope='vex_studio'` - 에이전트 목록에서 제외 |
 | 키바인딩 | `studio/keybindings.ts` 순수 테이블 + `useStudioKeybindings` 리스너 1개 + 소유 모듈 디스패치 |
 
 문제점
@@ -90,7 +90,7 @@ vex-2026-09-17/
 문제점 (사용자가 본 그 위화감의 원인)
 1. 모드가 아니라 모달 → 사이드바·BOOK·상태바가 뒤에 그대로 있고, 그 위에 다른 앱이 뜬 느낌.
 2. 대화가 하나뿐이라 에이전트 페이지 대화가 Lighter로 "이사"함. 닫으면 다시 돌아옴. 트레이딩 대화와 일반 대화가 같은 트랜스크립트에 섞임.
-3. 열 때마다 초기화 — 어느 마켓을 보고 있었는지 기억 못 함.
+3. 열 때마다 초기화 - 어느 마켓을 보고 있었는지 기억 못 함.
 4. 나가는 길이 모달 닫기(✕)뿐이고, 들어간 뒤엔 어디에 있는지 셸이 말해주지 않음 (사이드바·상태바는 여전히 에이전트 것).
 
 ---
@@ -107,8 +107,8 @@ vex-2026-09-17/
 | 우측 트랙 | BOOK 레일(포트폴리오) | BOOK 레일(프로젝트 스코프) | **트레이딩 대화 레일** (Lighter 전용 세션의 SessionPanel) |
 | 대화 | 일반 세션 | 없음(외부 에이전트) | `workspace='lighter'` 세션만. 에이전트 목록에 안 보임 |
 | 승인 | 인라인 카드 | GlobalApprovals | 티켓 자리에 카드 (이미 결정된 사항) + GlobalApprovals |
-| 영속 | `runtimeMode` | `activeProjectId` | `lighterEnvironment`, `lighterMarketId`, 워치리스트 — **모드 자체는 비영속**(재시작하면 Agent) |
-| 단축키 | — | `⌘⇧A` (Studio 안에서만) | 없음 (버튼으로 들어가는 화면) |
+| 영속 | `runtimeMode` | `activeProjectId` | `lighterEnvironment`, `lighterMarketId`, 워치리스트 - **모드 자체는 비영속**(재시작하면 Agent) |
+| 단축키 | - | `⌘⇧A` (Studio 안에서만) | 없음 (버튼으로 들어가는 화면) |
 
 원칙
 - **한 프레임, 세 내용물.** 그리드·리사이즈·접힘·상태바는 공유. 모드는 세 슬롯(사이드바/센터/우측)의 내용만 바꾼다.
@@ -148,41 +148,41 @@ vex-2026-09-17/
 ### 3.2 사이드바 `LighterSidebar`
 
 `StudioSidebar`가 `SessionsList`를 요소 단위로 미러링하듯, 같은 `<aside>` 크롬(`.vex-glass-rail`, 접힘 코레오그래피, 푸터 `SidebarProfile`)을 쓰되, 헤더는 `RuntimeModeToggle` 대신 **`← Agent` 뒤로 버튼 + "Lighter" 타이틀**. 내용:
-1. **환경 세그먼트** Core / RHC — 바꾸면 워치리스트·마켓·세션 목록이 환경 기준으로 필터.
-2. **워치리스트** — 즐겨찾기 마켓 + 최근 가격·24h 변화(퍼블릭 stats 스트림 재사용). 클릭 = 활성 마켓 전환. "마켓 찾기" 행은 기존 `MarketPicker`를 팝오버로.
-3. **트레이딩 세션** — `workspace='lighter'` 세션만, `SessionGroups` 재사용(고정/오늘/어제/이전). "새 트레이딩 세션" 버튼.
+1. **환경 세그먼트** Core / RHC - 바꾸면 워치리스트·마켓·세션 목록이 환경 기준으로 필터.
+2. **워치리스트** - 즐겨찾기 마켓 + 최근 가격·24h 변화(퍼블릭 stats 스트림 재사용). 클릭 = 활성 마켓 전환. "마켓 찾기" 행은 기존 `MarketPicker`를 팝오버로.
+3. **트레이딩 세션** - `workspace='lighter'` 세션만, `SessionGroups` 재사용(고정/오늘/어제/이전). "새 트레이딩 세션" 버튼.
 4. 접힘 레일: 환경 아이콘 · 별 · 세션 아이콘.
 
 ### 3.3 센터 `LighterCenter`
 
 - 현재 `TradingWorkspace`(차트/호가/티켓/하단 슬롯)와 리디자인한 컴포넌트를 **모달 없이** 그대로 호스팅. `LighterTradingDialog`의 오케스트레이션 본문을 `useLighterWorkspace()` 훅으로 추출해서 센터가 사용.
 - 마켓바(`MarketBar`)는 센터 상단 고정.
-- 마켓이 없거나 계정 연결이 없을 때의 **웰컴 상태** `LighterWelcome` — Studio 웰컴과 같은 문법: 목적 한 문장, "마켓 열기", "Settings에서 Lighter 계정 연결", 모드 토글.
+- 마켓이 없거나 계정 연결이 없을 때의 **웰컴 상태** `LighterWelcome` - Studio 웰컴과 같은 문법: 목적 한 문장, "마켓 열기", "Settings에서 Lighter 계정 연결", 모드 토글.
 
 ### 3.4 우측 트랙 `LighterChatRail`
 
-- `BookPanel`의 모드 분기에 `lighter` 갈래 추가: 활성 트레이딩 세션이 있으면 `<SessionPanel surface="embedded">`, 없으면 스타터 프롬프트 3개(Chart / Flow / Risk — 기존 `LighterConversation` 빈 상태 재사용).
+- `BookPanel`의 모드 분기에 `lighter` 갈래 추가: 활성 트레이딩 세션이 있으면 `<SessionPanel surface="embedded">`, 없으면 스타터 프롬프트 3개(Chart / Flow / Risk - 기존 `LighterConversation` 빈 상태 재사용).
 - ~~Review 흐름~~: 티켓의 Long/Short는 §7.11 데스크 레인으로 바뀌었다(컴포저를 거치지 않음). 세션이 없으면 세션 생성 화면으로.
 - 승인 카드: 세션 스코프 `ApprovalsRegion`이 대화 레일에 뜨고, Lighter 주문 승인만 티켓 자리에도 복제 표시 (현재 `isLighterOrderApproval` 유지).
 
 ### 3.5 전용 트레이딩 세션
 
 옵션 비교
-- (A) `scope='lighter'` — Studio 방식. 하지만 세션 CRUD 쿼리 전부가 `VEX_APP_SESSION_SCOPE`를 하드코딩(`main/database/sessions/{create,rename,delete,branch,mission-goal}.ts`)이라 손댈 곳이 많고, scope는 "누가 소유하는 세션인가"의 의미라 오용.
-- **(B) 컬럼 추가 `sessions.workspace TEXT NULL CHECK (workspace IN ('lighter'))`** — 마이그레이션 1개. `sessionCreateInputSchema`(agent arm)에 `workspace?: "lighter"`, `sessionListItemSchema`에 `workspace`, 목록 쿼리는 그대로 두고 렌더러에서 필터(`filterSessionsByWorkspace`). **권장.**
+- (A) `scope='lighter'` - Studio 방식. 하지만 세션 CRUD 쿼리 전부가 `VEX_APP_SESSION_SCOPE`를 하드코딩(`main/database/sessions/{create,rename,delete,branch,mission-goal}.ts`)이라 손댈 곳이 많고, scope는 "누가 소유하는 세션인가"의 의미라 오용.
+- **(B) 컬럼 추가 `sessions.workspace TEXT NULL CHECK (workspace IN ('lighter'))`** - 마이그레이션 1개. `sessionCreateInputSchema`(agent arm)에 `workspace?: "lighter"`, `sessionListItemSchema`에 `workspace`, 목록 쿼리는 그대로 두고 렌더러에서 필터(`filterSessionsByWorkspace`). **권장.**
 
 세부
 - 에이전트 모드 `SessionsList`는 `workspace === null`만, Lighter 사이드바는 `workspace === "lighter"`만.
 - Lighter 세션은 `mode: "agent"`(미션 아님) 고정. 제목 기본값 `"{SYMBOL} · {날짜}"`.
-- 툴 표면 제한(그 세션에선 Lighter 툴만)은 **범위 밖**. 필요해지면 `workspace`를 main 쪽 세션 컨텍스트에 넘겨 시스템 프롬프트/툴 필터에 쓰면 됨 — 컬럼이 그 훅 역할.
+- 툴 표면 제한(그 세션에선 Lighter 툴만)은 **범위 밖**. 필요해지면 `workspace`를 main 쪽 세션 컨텍스트에 넘겨 시스템 프롬프트/툴 필터에 쓰면 됨 - 컬럼이 그 훅 역할.
 - 마이그레이션 번호: 이 트리의 최신은 162. 공식 앱과 DB를 공유하지 않는 것이 전제(9/16 충돌 사고 참고). 격리 인스턴스 `vex-0917`에서만 적용.
 
 ### 3.6 진입 / 이탈 / 영속
 
-- `RuntimeMode = "agent" | "studio" | "lighter"`. **`RuntimeModeToggle`은 `Agent | Studio` 2세그먼트 그대로** — Lighter 모드에서는 토글이 마운트되지 않음(사이드바 헤더가 다름).
+- `RuntimeMode = "agent" | "studio" | "lighter"`. **`RuntimeModeToggle`은 `Agent | Studio` 2세그먼트 그대로** - Lighter 모드에서는 토글이 마운트되지 않음(사이드바 헤더가 다름).
 - 진입: BOOK 레일 `Lighter` 버튼과 `light it up` 둘 다 `setRuntimeMode("lighter")`. `LighterTradingHost`, `workspace-command.ts`의 window 이벤트, `AppShell`의 `lighterTradingOpen` 삭제. 컴포저의 문구 감지는 유지.
 - 이탈: Lighter 사이드바 헤더 `← Agent` → `setRuntimeMode("agent")`. `Esc`는 안 씀(티켓 입력·마켓 피커와 충돌).
-- 영속: `runtimeMode` 저장 시 `"lighter"`는 `"agent"`로 강등(`coerceRuntimeMode`가 아니라 persist 단계에서) — 버튼으로 들어가는 화면이라 재시작 후 자동 복귀하지 않음. 대신 `lighterEnvironment`("core"|"rhc"), `lighterMarketId`(환경별), `lighterWatchlist`(환경별 marketId 배열), `lighterBottomOpen`은 영속. `activeLighterSessionId`는 비영속(`activeSessionId`와 동일 규칙).
+- 영속: `runtimeMode` 저장 시 `"lighter"`는 `"agent"`로 강등(`coerceRuntimeMode`가 아니라 persist 단계에서) - 버튼으로 들어가는 화면이라 재시작 후 자동 복귀하지 않음. 대신 `lighterEnvironment`("core"|"rhc"), `lighterMarketId`(환경별), `lighterWatchlist`(환경별 marketId 배열), `lighterBottomOpen`은 영속. `activeLighterSessionId`는 비영속(`activeSessionId`와 동일 규칙).
 - 마켓 컨텍스트가 대화에 붙어 다니도록 새 Lighter 세션 생성 시 initial turn에 환경·마켓을 명시(현재 `buildLighterReviewMessage`가 하는 방식).
 
 ### 3.7 데이터
@@ -200,10 +200,10 @@ vex-2026-09-17/
 
 ## 4. Agent / Studio 쪽 개선 (모드 분리를 위해 같이 손대는 최소치)
 
-1. **BOOK 레일 `Lighter` 버튼** — `aria-haspopup="dialog"` 제거(더 이상 다이얼로그가 아님), 클릭은 모드 전환. Studio 모드의 BOOK에도 같은 버튼이 있으므로 Studio→Lighter→`← Agent` 경로가 생김: `← Agent` 대신 **들어오기 전 모드로 복귀**(`lighterReturnMode` 비영속 슬롯).
-2. **모드 토글 무변경** — `RuntimeModeToggle`은 `Agent | Studio` 그대로, 마운트 지점도 그대로.
-3. **`BookPanel` 분기를 모드 레지스트리로** — `{agent, studio, lighter}` → `(state) => ReactNode` 맵. 4갈래 if/else 제거.
-4. **`composer-submit.ts`에서 Lighter 가로채기 제거** — 문구 감지는 남기되 결과가 모드 전환이면 컴포저가 아니라 `AppShell` 레벨 커맨드 디스패치로.
+1. **BOOK 레일 `Lighter` 버튼** - `aria-haspopup="dialog"` 제거(더 이상 다이얼로그가 아님), 클릭은 모드 전환. Studio 모드의 BOOK에도 같은 버튼이 있으므로 Studio→Lighter→`← Agent` 경로가 생김: `← Agent` 대신 **들어오기 전 모드로 복귀**(`lighterReturnMode` 비영속 슬롯).
+2. **모드 토글 무변경** - `RuntimeModeToggle`은 `Agent | Studio` 그대로, 마운트 지점도 그대로.
+3. **`BookPanel` 분기를 모드 레지스트리로** - `{agent, studio, lighter}` → `(state) => ReactNode` 맵. 4갈래 if/else 제거.
+4. **`composer-submit.ts`에서 Lighter 가로채기 제거** - 문구 감지는 남기되 결과가 모드 전환이면 컴포저가 아니라 `AppShell` 레벨 커맨드 디스패치로.
 5. `SidebarProfile` 메뉴는 그대로 둠(범위 밖). 단 Lighter 모드에서도 같은 푸터를 쓰므로 자동으로 접근 가능.
 
 ---
@@ -223,15 +223,15 @@ vex-2026-09-17/
 
 ## 6. 결정이 필요한 것
 
-1. **우측 트랙 = 대화 레일** 방식(3.1) 동의? 대안은 센터 안 4번째 열 + 자체 드로어(현재 리디자인 구현) — 셸 리사이저와 이중이 되어 비추천.
+1. **우측 트랙 = 대화 레일** 방식(3.1) 동의? 대안은 센터 안 4번째 열 + 자체 드로어(현재 리디자인 구현) - 셸 리사이저와 이중이 되어 비추천.
 2. 전용 세션 저장 방식 **(B) `workspace` 컬럼** 동의? 마이그레이션 1개 추가됨.
-3. Lighter 모드 진입 시 **BOOK 포트폴리오 카드**(지갑 잔고 등)는 대화 레일에 밀려 안 보임. 하단 계정 패널의 "잔고" 탭이 대신함 — 괜찮은지.
-4. 이탈 버튼 위치 — 사이드바 헤더 `← Agent`(제안) vs 마켓바 오른쪽 끝 ✕. 사이드바 접힘 상태에서도 보이려면 헤더 쪽이 유리.
-5. P0(코드 정리)를 P1보다 먼저 할지, P1 하면서 같이 할지. 추천: **P1을 하면서 P0** — 어차피 Dialog를 해체하면서 훅 추출이 일어남.
+3. Lighter 모드 진입 시 **BOOK 포트폴리오 카드**(지갑 잔고 등)는 대화 레일에 밀려 안 보임. 하단 계정 패널의 "잔고" 탭이 대신함 - 괜찮은지.
+4. 이탈 버튼 위치 - 사이드바 헤더 `← Agent`(제안) vs 마켓바 오른쪽 끝 ✕. 사이드바 접힘 상태에서도 보이려면 헤더 쪽이 유리.
+5. P0(코드 정리)를 P1보다 먼저 할지, P1 하면서 같이 할지. 추천: **P1을 하면서 P0** - 어차피 Dialog를 해체하면서 훅 추출이 일어남.
 
 ---
 
-## 7. 진입 후 워크스페이스 — perps 데스크 설계
+## 7. 진입 후 워크스페이스 - perps 데스크 설계
 
 *§3은 "어떻게 들어가고 셸이 어떻게 바뀌나". §7은 "들어간 다음 화면이 어떻게 일하나". 기준: Binance Futures / Hyperliquid의 문법, 단 서명 경로는 Vex 그대로(모든 변경은 에이전트 PREPARE→승인→CONFIRM).*
 
@@ -248,7 +248,7 @@ vex-2026-09-17/
 | 체결 | 없음 | 마이그레이션 162가 fills를 저장하지만 읽기 IPC 없음 |
 | AI | 채팅 열 + 스타터 3개, 티켓 Review → 컴포저 드래프트 | 답을 보고 매매로 이어지는 다리가 없음: 에이전트 답변 → 티켓 프리필 경로 없음. 화면 컨텍스트(어느 마켓·포지션)가 질문에 자동으로 안 붙음 |
 
-### 7.1 레이아웃 — 섹션마다 끌어서 조절 (목업 v5 확정)
+### 7.1 레이아웃 - 섹션마다 끌어서 조절 (목업 v5 확정)
 
 ```
 마켓바  ETH-PERP ▾ │ 3,205.10 │ Mark 3,205.4 │ Index 3,204.9 │ Funding +0.0081% · 03:12:40 │ OI $412M │ 24h Vol $1.2B │ H/L
@@ -277,9 +277,9 @@ vex-2026-09-17/
 > **2026-09-17 후속: §7.7로 대체.** 우측 열 세로 쌓기(2열)는 Binance 분석 후 **항상 3열 `차트 | 호가+체결 | 티켓`**으로 바뀌었다. 아래 2열 근거는 이력으로 남긴다.
 
 - **왜 3열이 아니라 2열 + 세로 쌓기인가.** Vex는 채팅 레일이 4번째 열이라 1440에서 데스크 폭이 ~810px. `차트 | 호가 | 티켓` 3열이면 차트가 ~290px로 무용. 호가+티켓을 **300px 한 열**에 세로로 쌓으면 차트가 ~500px, 1920에선 ~980px.
-- **티켓 위, 호가 아래.** 업계(하이퍼리퀴드·Binance) 표준이 우상단 티켓. "바로 진입"은 Long/Short가 차트 옆 눈높이에 있는 것. 티켓은 기본 **자동(내용 높이)**, 호가가 나머지를 받음. 세로 양보 순서는 고정: 호가가 먼저 자기 바닥(140 = 헤더·인사이드 행·컬럼 라벨·비율 바 + 한쪽 1단)까지 양보하고, 그다음 티켓이 바닥(240)까지 줄며 내부 스크롤, 독은 사용자가 정한 높이를 지킨다. 독이 접히는 건 오직 독 최소(120)로도 두 바닥이 안 들어갈 때뿐(`dockSqueezed`). S2 드래그는 티켓 높이를 열 대비 비율로 **고정**(`ticketShare`), 더블클릭이면 다시 자동(`null`) — 2026-09-17 "섹션별 리사이징이 자유롭지 않다"는 피드백으로 S2 복귀.
+- **티켓 위, 호가 아래.** 업계(하이퍼리퀴드·Binance) 표준이 우상단 티켓. "바로 진입"은 Long/Short가 차트 옆 눈높이에 있는 것. 티켓은 기본 **자동(내용 높이)**, 호가가 나머지를 받음. 세로 양보 순서는 고정: 호가가 먼저 자기 바닥(140 = 헤더·인사이드 행·컬럼 라벨·비율 바 + 한쪽 1단)까지 양보하고, 그다음 티켓이 바닥(240)까지 줄며 내부 스크롤, 독은 사용자가 정한 높이를 지킨다. 독이 접히는 건 오직 독 최소(120)로도 두 바닥이 안 들어갈 때뿐(`dockSqueezed`). S2 드래그는 티켓 높이를 열 대비 비율로 **고정**(`ticketShare`), 더블클릭이면 다시 자동(`null`) - 2026-09-17 "섹션별 리사이징이 자유롭지 않다"는 피드백으로 S2 복귀.
 - **호가는 Bid | Ask 좌우 배치**, mid·스프레드·mark 행을 호가 영역 **맨 위에 고정**. 세로 배치는 아래쪽(bid 깊은 단)만 잘리는 비대칭이 생기지만, 좌우 배치는 양쪽이 같이 잘리고 best bid/ask는 항상 보임. 누적 바는 중앙선에서 바깥으로.
-- **하단 독은 센터 전체 폭**(차트+우측 열 밑). 포지션 표 10열이 차트 폭만으론 안 들어감. **접기**: 활성 탭 재클릭 또는 `⌄` → 32px 스트립. 200px이 차트/호가로 돌아옴 — 900 높이에서 Protect를 펼쳐도 호가가 안 죽는 이유.
+- **하단 독은 센터 전체 폭**(차트+우측 열 밑). 포지션 표 10열이 차트 폭만으론 안 들어감. **접기**: 활성 탭 재클릭 또는 `⌄` → 32px 스트립. 200px이 차트/호가로 돌아옴 - 900 높이에서 Protect를 펼쳐도 호가가 안 죽는 이유.
 - **스플리터 4개, 비율 저장.** S1 우측 열 폭(데스크 폭의 27% 기본, 260px–50%), S2 티켓 높이(자동 기본, 고정 시 열 대비 비율, 240px–열−141), S3 하단 높이(데스크 높이의 20% 기본, 120px–60%이되 차트+열이 381 아래로 못 내려감, +접힘 32), S4 셸 우측 트랙 300–520(§3.1). S1·S2·S3은 px가 아니라 **데스크 대비 비율**로 저장해 창·사이드바·채팅 레일 크기가 바뀌면 차트·열·독이 같은 비율로 함께 줄고 늘어난다(`resolveLighterLayout`이 매 프레임 px로 환산). 세 손잡이 모두 더블클릭 = 기본값.
 - 구현: `TradingWorkspace`의 인라인 포인터/키보드 코드를 `useSplitter({axis, min, max, value, onChange, onReset?})` 훅 하나로 추출해 재사용(드래그는 px, 저장은 비율; `onReset`은 S2가 더블클릭을 "자동으로 복귀"로 쓰기 위한 훅). 화살표 키·`role="separator"` aria는 지금 것 그대로.
 - **영속**: lighterAnalysisStore `desk.layout: {panelShare, ticketShare | null, bottomShare, bottomCollapsed}` (coerce + 화이트리스트; 이전 px 저장값은 기본 비율로 대체). 채팅 레일 폭은 셸의 BOOK 폭 슬롯이 이미 영속.
@@ -287,19 +287,19 @@ vex-2026-09-17/
 
 ### 7.2 호가/체결 축소 + 바로 진입
 
-- 호가는 우측 열 하단, 폭 = 열 폭(300). **좌우 2단 × (수량 | 가격)** — 왼쪽 bid(수량·가격), 오른쪽 ask(가격·수량), 단마다 누적 배경 바. 3열 "Total"은 없음(좌우 배치에선 자리 없음, 툴팁으로).
+- 호가는 우측 열 하단, 폭 = 열 폭(300). **좌우 2단 × (수량 | 가격)** - 왼쪽 bid(수량·가격), 오른쪽 ask(가격·수량), 단마다 누적 배경 바. 3열 "Total"은 없음(좌우 배치에선 자리 없음, 툴팁으로).
 - **Book | Trades 탭**을 같은 영역에. 고정 상단 행에 mid·스프레드 bps·mark.
 - 클릭 = 지정가 (현재 `pricePick` 유지). 티켓이 Market이면 **Limit으로 자동 전환**하고 가격 채움. `⇧`+클릭 = 트리거 가격(스탑/TP 모드일 때).
 - 티켓 상단은 **2단으로 끝**: `Long | Short` 큰 세그먼트 → `Market | Limit | ▾ 더보기`(SL/TP/OCO는 메뉴) + 같은 줄 오른쪽 `10x · Cross ›` 칩. 수량 + 단위 토글 + `25 50 75 100%` 칩. 한 줄에 Reduce-only 체크 + Market이면 슬리피지 칩 / Limit이면 `Post-only / IOC` 칩.
-- **`▸ Protect (TP / SL)`** 접힘 섹션(기본 접힘): 펼치면 TP·SL 가격 2개 + 각 목표에서의 예상 손익. OCO 모드는 이 섹션이 대체 — 별도 탭 삭제.
+- **`▸ Protect (TP / SL)`** 접힘 섹션(기본 접힘): 펼치면 TP·SL 가격 2개 + 각 목표에서의 예상 손익. OCO 모드는 이 섹션이 대체 - 별도 탭 삭제.
 - 요약은 **2×2**: Cost(필요 마진) · Max(최대 수량) / Est. liq · Fee. 마진 = 명목/레버리지, 청산가는 Lighter 공식(초기·유지 마진 비율은 `marketMaximum`/leverage overview에서).
 - 버튼 아래 한 줄 `Available $… · Margin used …%`. 담보·마진 바·Deposit/Withdraw는 하단 **Balances 탭**으로 이동(티켓에서 제거).
-- `10x · Cross ›` 칩은 표시 전용 — 클릭 시 Settings 레버리지 표로 이동(레버리지·자본비율은 Settings-only 원칙).
+- `10x · Cross ›` 칩은 표시 전용 - 클릭 시 Settings 레버리지 표로 이동(레버리지·자본비율은 Settings-only 원칙).
 - 주 버튼 라벨은 상태 서술: `Long ETH · Market 0.50`. 누르면 Review(§7.4)로 이어짐.
 
-### 7.3 perps 정합 — 표와 마켓바
+### 7.3 perps 정합 - 표와 마켓바
 
-**마켓바** 추가: 펀딩률 + 다음 펀딩 카운트다운, OI(quote), 24h 고/저/거래량. 마크 vs 최종가 색 구분. 전부 `lighterTradingPublicStatsEventSchema.stats`(`markPrice`, `indexPrice`, `openInterestQuote`, `daily`, `funding`)에 이미 있음 — 스키마 변경 0.
+**마켓바** 추가: 펀딩률 + 다음 펀딩 카운트다운, OI(quote), 24h 고/저/거래량. 마크 vs 최종가 색 구분. 전부 `lighterTradingPublicStatsEventSchema.stats`(`markPrice`, `indexPrice`, `openInterestQuote`, `daily`, `funding`)에 이미 있음 - 스키마 변경 0.
 
 **포지션 표** 컬럼: Symbol · Side · Size · Entry · **Mark** · **Liq** · **Margin / Lev** · **uPnL (ROE%)** · **TP/SL** · Actions
 - Mark: 활성 마켓은 라이브 stats, 나머지는 스냅샷 폴링값.
@@ -313,7 +313,7 @@ vex-2026-09-17/
 
 **잔고 탭**: 담보 · 가용 · uPnL · **마진 사용률 바** · `Deposit / Withdraw` 버튼(에이전트 제안).
 
-**행 액션의 실행 경로** — 렌더러엔 주문 IPC가 없고 만들지도 않는다. 두 가지:
+**행 액션의 실행 경로** - 렌더러엔 주문 IPC가 없고 만들지도 않는다. 두 가지:
 - (a) 컴포저 드래프트에 문장을 써 넣고 사용자가 전송 (현재 Review 방식).
 - (b) 트레이딩 세션에 **즉시 전송** → 에이전트가 PREPARE → 승인 카드가 티켓 자리에 → 사용자가 Confirm.
 - 제안: **신규 주문은 (a)**(사용자가 문장을 다듬을 여지), **Close / Cancel / Cancel all은 (b)**(파라미터가 없고 어차피 승인 카드에서 한 번 더 확인함). 결정 필요 → §7.6.
@@ -327,8 +327,8 @@ vex-2026-09-17/
    - 포지션 없음: `Read this chart` · `Where's the liquidity?` · `Plan a long, 1% risk` · `Plan a short, 1% risk`
    - 포지션 있음: `Should I trim?` · `Set a protective stop` · `What invalidates this?`
    - 컨텍스트 진입점: 호가 벽 우클릭 `Ask about this level`, 포지션 행 `Review this position`.
-3. **답변 → 티켓.** 에이전트가 `lighter_order_preview`(읽기 전용) 툴을 돌린 행에 **`Load into ticket`** 칩. 클릭하면 preview 파라미터가 `TradeTicketPrefill`로 들어가고 Protect 섹션까지 채워짐 → 사용자가 확인·수정 → Review. 에이전트가 바로 PREPARE까지 간 경우는 지금처럼 **승인 카드가 티켓 자리**에 뜸. 즉 "제안"은 티켓으로, "실행"은 승인 카드로 — 두 경로가 공존.
-   - 구현: 트랜스크립트 툴 행(`ToolLedger`)에 `toolName === "lighter_order_preview"` 훅 → `LighterCenter`가 `onPreviewLoad` 콜백 제공. 렌더러에서 preview 결과 JSON을 파싱하는 zod 스키마 1개 추가(`shared/schemas`). 에이전트가 preview를 먼저 호출하도록 유도하는 건 main 쪽 Lighter 세션 시스템 프롬프트(§3.5 `workspace` 훅)에서 — 선택.
+3. **답변 → 티켓.** 에이전트가 `lighter_order_preview`(읽기 전용) 툴을 돌린 행에 **`Load into ticket`** 칩. 클릭하면 preview 파라미터가 `TradeTicketPrefill`로 들어가고 Protect 섹션까지 채워짐 → 사용자가 확인·수정 → Review. 에이전트가 바로 PREPARE까지 간 경우는 지금처럼 **승인 카드가 티켓 자리**에 뜸. 즉 "제안"은 티켓으로, "실행"은 승인 카드로 - 두 경로가 공존.
+   - 구현: 트랜스크립트 툴 행(`ToolLedger`)에 `toolName === "lighter_order_preview"` 훅 → `LighterCenter`가 `onPreviewLoad` 콜백 제공. 렌더러에서 preview 결과 JSON을 파싱하는 zod 스키마 1개 추가(`shared/schemas`). 에이전트가 preview를 먼저 호출하도록 유도하는 건 main 쪽 Lighter 세션 시스템 프롬프트(§3.5 `workspace` 훅)에서 - 선택.
 
 승인 카드는 대화 레일(세션 `ApprovalsRegion`)과 티켓 자리 양쪽에 뜨되 티켓 쪽이 주(§3.4).
 
@@ -343,10 +343,10 @@ vex-2026-09-17/
 
 ### 7.6 결정이 필요한 것 (§6에 추가)
 
-6. 행 액션 실행 경로 — Close/Cancel/Cancel-all은 **즉시 전송(b)**, 신규 주문은 드래프트(a)로 가도 되는지.
+6. 행 액션 실행 경로 - Close/Cancel/Cancel-all은 **즉시 전송(b)**, 신규 주문은 드래프트(a)로 가도 되는지.
 7. ~~호가 220px 세로 열~~ → **목업 v5로 확정**: 우측 300px 열에 티켓 위·호가 아래, 호가 Bid|Ask 좌우, 하단 독 전체 폭·접기. (2026-09-17 "너가 하고싶은거 다해봐")
 8. SL/TP/OCO를 `Protect` 접힘 섹션으로 합치고 모드 탭 7개 → `Market | Limit | ▾`로 줄이는 것.
-9. `Load into ticket`은 에이전트가 `order_preview`를 호출할 때만 뜸 — Lighter 세션 시스템 프롬프트에 "제안 전 preview 호출" 힌트를 넣을지(main 쪽 변경).
+9. `Load into ticket`은 에이전트가 `order_preview`를 호출할 때만 뜸 - Lighter 세션 시스템 프롬프트에 "제안 전 preview 호출" 힌트를 넣을지(main 쪽 변경).
 
 ### 7.7 Binance 레이아웃 개편 (2026-09-17 구현 반영)
 
@@ -367,20 +367,20 @@ Binance Futures 화면을 분석해 §7.1~7.2를 다음처럼 바꿨다. 서명 
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **항상 3열.** `차트 | 호가+체결 | 티켓`. 바닥 360 / 220 / 260, 두 열은 데스크 폭 대비 비율 저장(`bookShare` 기본 0.20, `ticketShare` 0.25, 상한 50%), 호가 열이 먼저 풀리고 티켓은 남는 폭에서. 채팅 레일(BOOK 트랙, 300–520)이 넓으면 차트가 먼저 줄어드는 게 정상 — 1440에서 레일 360이면 차트 ~500.
-- **호가는 세로 스택.** asks가 위에서 인사이드로, bids가 인사이드에서 아래로. 행은 `Price | Size | Sum`(Sum은 사이즈 단위 누적, 220 바닥에서 세 열이 들어가도록 라벨은 `Sum`만), 깊이 바는 오른쪽에서 안으로. 헤더 오른쪽에 `BTC|USD` 단위 스위치 + 스택/좌우 뷰 토글, 라벨 행 끝에 그룹핑 셀렉트. 행 높이 **18px**(글자 11px) — 같은 높이에 행 10% 더.
+- **항상 3열.** `차트 | 호가+체결 | 티켓`. 바닥 360 / 220 / 260, 두 열은 데스크 폭 대비 비율 저장(`bookShare` 기본 0.20, `ticketShare` 0.25, 상한 50%), 호가 열이 먼저 풀리고 티켓은 남는 폭에서. 채팅 레일(BOOK 트랙, 300–520)이 넓으면 차트가 먼저 줄어드는 게 정상 - 1440에서 레일 360이면 차트 ~500.
+- **호가는 세로 스택.** asks가 위에서 인사이드로, bids가 인사이드에서 아래로. 행은 `Price | Size | Sum`(Sum은 사이즈 단위 누적, 220 바닥에서 세 열이 들어가도록 라벨은 `Sum`만), 깊이 바는 오른쪽에서 안으로. 헤더 오른쪽에 `BTC|USD` 단위 스위치 + 스택/좌우 뷰 토글, 라벨 행 끝에 그룹핑 셀렉트. 행 높이 **18px**(글자 11px) - 같은 높이에 행 10% 더.
 - **체결은 별도 패널.** 호가 열 안에서 호가 아래, 세로 스플리터로 비율 조절(`tradesShare` 0.32 기본, 120px–70%).
 - **티켓 순서(Binance).** 레버리지 칩 → `Market | Limit` → Avbl → 가격/사이즈(Qty|Risk 토글 + 슬라이더) → 슬리피지 또는 TIF(GTC/IOC/Post-Only) → `Reduce-Only · TP/SL` 체크 → 요약 → 맨 아래 `Long | Short` 두 버튼(누르는 쪽이 프리뷰). **`More` 셀렉트는 삭제**: 진입에 붙이는 보호는 `TP/SL` 체크박스 하나, 기존 포지션의 스탑/TP는 Positions 탭 `Set stop loss and take profit`(oco 프리필)이나 에이전트 핸드오프로만 티켓에 들어온다. 그렇게 들어온 모드는 세 번째 눌린 탭(`SL + TP` 등)으로 표시되고, Market/Limit을 누르면 빠져나온다. `PROTECTION_MODES` 상수 제거.
-- **Ask Vex는 동사, 레일은 명사 (Copilot 패턴).** 상시 커맨드 바(`AskVexBar`, 38px)와 ⌘K 팔레트는 둘 다 만들었다가 뺐다: 레일 컴포저와 입력창이 두 개가 되고, 레일 스코프 스트립의 퀵 프롬프트와 겹치고, `Chat with Vex` 헤딩 옆에 `Ask Vex`가 서면 다른 기능처럼 읽힌다. 남긴 것: (1) 레일 헤딩은 `vx Vex`(답하는 쪽의 이름), (2) 마켓바 `Ask Vex ⌘K` 필과 ⌘K/Ctrl+K는 `useLighterDesk.askVex` — 레일이 접혀 있으면 열고 레일 컴포저에 커서를 둔다, 세션이 없으면 새 세션 모달. 데스크에 두 번째 입력창은 없다. (3) 티켓 `Preview` 옆 `Ask Vex`: 드래프트 사실(`buildAskAboutDraftMessage`)을 질문으로 즉시 보내는 세컨드 오피니언, 아무것도 PREPARE하지 않는다. (4) Positions 행 `Ask`(기존). 답은 전부 레일에 도착.
+- **Ask Vex는 동사, 레일은 명사 (Copilot 패턴).** 상시 커맨드 바(`AskVexBar`, 38px)와 ⌘K 팔레트는 둘 다 만들었다가 뺐다: 레일 컴포저와 입력창이 두 개가 되고, 레일 스코프 스트립의 퀵 프롬프트와 겹치고, `Chat with Vex` 헤딩 옆에 `Ask Vex`가 서면 다른 기능처럼 읽힌다. 남긴 것: (1) 레일 헤딩은 `vx Vex`(답하는 쪽의 이름), (2) 마켓바 `Ask Vex ⌘K` 필과 ⌘K/Ctrl+K는 `useLighterDesk.askVex` - 레일이 접혀 있으면 열고 레일 컴포저에 커서를 둔다, 세션이 없으면 새 세션 모달. 데스크에 두 번째 입력창은 없다. (3) 티켓 `Preview` 옆 `Ask Vex`: 드래프트 사실(`buildAskAboutDraftMessage`)을 질문으로 즉시 보내는 세컨드 오피니언, 아무것도 PREPARE하지 않는다. (4) Positions 행 `Ask`(기존). 답은 전부 레일에 도착.
 
 ### 7.8 출시 폴리시 (2026-09-18 구현 반영)
 
 GTM/UX 관점의 마무리. 흐름은 그대로, 언어·바닥 폭·키보드만 손봤다.
 
-- **상태 언어 하나.** 계정 없음 = `Not connected` 한 명사 + `Connect Lighter` 한 동사. 독 헤더 상태(`No account` → `Not connected`), 독 빈 상태, 티켓 게이트가 같은 두 단어. `ambiguous_account`만 `Open Settings`(가야 할 곳이 다르니). 레일 헤딩 옆 `Desk` 칩은 삭제 — 뷰가 하나인데 탭처럼 읽혔다. 컴포저 플레이스홀더는 데스크에서 회전을 멈추고 `Ask about this market, or describe an order.` 한 문장(`LIGHTER_DESK_PLACEHOLDER`) — 스왑/브리지 예문이 라이브 호가 옆에서 돌지 않게.
+- **상태 언어 하나.** 계정 없음 = `Not connected` 한 명사 + `Connect Lighter` 한 동사. 독 헤더 상태(`No account` → `Not connected`), 독 빈 상태, 티켓 게이트가 같은 두 단어. `ambiguous_account`만 `Open Settings`(가야 할 곳이 다르니). 레일 헤딩 옆 `Desk` 칩은 삭제 - 뷰가 하나인데 탭처럼 읽혔다. 컴포저 플레이스홀더는 데스크에서 회전을 멈추고 `Ask about this market, or describe an order.` 한 문장(`LIGHTER_DESK_PLACEHOLDER`) - 스왑/브리지 예문이 라이브 호가 옆에서 돌지 않게.
 - **계정 없는 첫 화면.** 티켓은 대시로 채운 폼이 아니라 게이트 한 블록(`data-gate="not-connected"`): 상태 · 한 문장 · `Connect Lighter`. 차트·호가·체결은 그대로 산다. `openTradingSettings`는 누른 버튼의 rect를 `origin`으로 넘겨 Settings가 그 버튼에서 모프한다(`data-vex-morph="trigger"`).
-- **바닥 폭(540/220/260)에서 잘림 0.** 세 열을 컨테이너 쿼리 컨테이너로(`.lit-chart-panel`, `.lit-book-column`, `.lit-ticket` — 전부 그리드 트랙이라 안전). 티켓 사실표 `Max Buy Price` → `Max Buy` + 긴 라벨은 `title`, `Fee (Taker 0.0003%)` → `Fee (Taker)` + 요율은 `title`, 슬리피지 필드는 ≤300에서 라벨이 위로. 호가 미드 행은 ≤260에서 스프레드 글자를 내리고 행 `title`로(마크 숫자가 우선). 차트 툴바는 ≤640에서 스터디 리드아웃, ≤600에서 30m·12h(선택된 게 아니면) 숨김 + 탭 30px — 이전의 `@media (max-width: 700px)` 뷰포트 쿼리는 열 안에서 무의미했다.
-- **키보드.** Escape가 확장 차트를 접는다(위 레이어 — 피커·스터디 메뉴·드로잉 — 가 `preventDefault`했으면 양보). 차트 툴바 포커스 링을 데스크 토큰(`--lit-focus`, offset 3)으로 통일.
+- **바닥 폭(540/220/260)에서 잘림 0.** 세 열을 컨테이너 쿼리 컨테이너로(`.lit-chart-panel`, `.lit-book-column`, `.lit-ticket` - 전부 그리드 트랙이라 안전). 티켓 사실표 `Max Buy Price` → `Max Buy` + 긴 라벨은 `title`, `Fee (Taker 0.0003%)` → `Fee (Taker)` + 요율은 `title`, 슬리피지 필드는 ≤300에서 라벨이 위로. 호가 미드 행은 ≤260에서 스프레드 글자를 내리고 행 `title`로(마크 숫자가 우선). 차트 툴바는 ≤640에서 스터디 리드아웃, ≤600에서 30m·12h(선택된 게 아니면) 숨김 + 탭 30px - 이전의 `@media (max-width: 700px)` 뷰포트 쿼리는 열 안에서 무의미했다.
+- **키보드.** Escape가 확장 차트를 접는다(위 레이어 - 피커·스터디 메뉴·드로잉 - 가 `preventDefault`했으면 양보). 차트 툴바 포커스 링을 데스크 토큰(`--lit-focus`, offset 3)으로 통일.
 - 확인한 것: DOM 감사에서 라벨 없는 아이콘 버튼 0, 바닥 폭 오버플로 스캔 0, ⌘K → 레일 컴포저 포커스, Escape → 접힘. AAPL 같은 주식 마켓은 장외 시간에 차트가 비는데 이건 데이터 문제라 여기서 안 다뤘다.
 
 ### 7.9 Connect Lighter = 온보딩 채팅 (2026-09-18)
@@ -418,7 +418,7 @@ GTM/UX 관점의 마무리. 흐름은 그대로, 언어·바닥 폭·키보드�
 
 ### 7.12 승인 카드: 사람용 요약 + 카드가 뜨면 호가 칸까지 (2026-09-18)
 
-"카드 크기가 너무 별로야" — 원인은 둘이었다. 260px 티켓 칸에 signed field 27개가 키 이름 그대로 쌓였고, 그 좁은 칸에서 Reason 입력과 REJECT/APPROVE가 두 줄로 접혔다.
+"카드 크기가 너무 별로야" - 원인은 둘이었다. 260px 티켓 칸에 signed field 27개가 키 이름 그대로 쌓였고, 그 좁은 칸에서 Reason 입력과 REJECT/APPROVE가 두 줄로 접혔다.
 
 - **사람용 행.** `ApprovalCard/lighter-order-facts.ts` `lighterOrderFacts(criticalArgs)`가 `toolId`로 카드를 골라 라벨·값 행을 만든다(`order.create` → 진입, `groupingType: "one-cancels-the-other"`면 OCO, `position.close`, `order.cancel`; 그 외는 null이라 기존 카드 그대로). 진입: Action `Buy 0.0002 BTC` · Market `BTC perp · Robinhood Chain` · Order `Market IOC` · Trigger · Price(`Worst …`) · Notional · Expires(GTC만). OCO: 두 다리 `X trigger · Y bound`. Close: Action `Close 0.5 BTC long` · Worst price · Max slippage. Cancel: Action `Cancel order 12345` · Order `Buy Limit GTC at 75000` · Open `0.3 remaining · 0.2 filled`. 값이 없는 행은 뺀다.
 - `ApprovalDetails`는 그 행을 `data-testid="order-facts"`로 먼저 그리고, 원래의 `critical-args` 목록은 `<details>` "All signed fields" 아래로 접는다. 서명되는 필드는 하나도 빠지지 않고, 접힌 채로도 DOM에 남는다.
@@ -441,22 +441,22 @@ Lighter 모드 진입은 정확한 명령 "light it up"과 세션 책 레일의 
 - **출처.** `approvalOriginSchema`에 `desk`가 들어간다(DB 제약 164는 이미 허용, `normaliseIntentOrigin`도 통과). 데스크 레인/티켓이 만든 카드는 `origin: "desk"`, 채팅에서 모델이 만든 카드는 `agent`. 배우 줄은 "You, from the Lighter desk". 데스크 카드엔 Reject 사유 입력이 없다(사유는 모델에게 가는 transcript라 읽을 사람이 없다; `ApprovalDecisionActions rejectReasonInput`).
 - **데스크 카드 = 모달.** `lighterTrading/DeskApprovalDialog.tsx`가 `origin === "desk"`인 pending 카드를 `<dialog data-vex-area="lighter-desk-approval">`(560px, "Approve order" / "Nothing signs until you confirm.")에 띄운다. 배경 클릭으로는 안 닫히고 ESC는 숨기기만 한다(카드는 AWAITING 배지에 남아 만료까지 pending, 새 카드가 오면 다시 열린다). 티켓 칸·호가 칸은 그대로다. `data-approving` 그리드 분기와 `.lit-ticket-approvals` CSS는 제거.
 - **에이전트 카드 = 채팅 레일만.** `ApprovalsRegion`이 `origin !== "desk"` 행만 그린다. 레일 헤더는 "Vex's proposals land here". 승인 경로는 변하지 않는다: 렌더러는 selector만 보내고, main이 proposal을 만들며, Confirm은 id만 싣는다.
-- 확인한 것: 단위 — 데스크/에이전트 혼합에서 티켓 유지 + 다이얼로그에 데스크 카드만, 에이전트만이면 닫힘, ESC 뒤 새 id로 재오픈, 채팅 레일에서 데스크 행 제외, 배우 줄·사유 입력 유무. 라이브 — 2026-09-18 03:42 dev 인스턴스(RHC, BTC): 티켓 Long 0.0002 BTC → `dialog[lighter-desk-approval]`가 데스크 위에 열림, "Approve order / Nothing signs until you confirm.", 카드 REQUESTED BY "You, from the Lighter desk", Buy 0.0002 BTC · Market IOC · Worst 76903.8 · Notional ≈ 15.38, Reason 입력 없음. 같은 카드는 채팅 레일(`.lit-chat-shell`)에 없고 상단 AWAITING 1 배지의 닫힌 글로벌 패널에만 있다. Reject → 다이얼로그 닫히고 카드 0. 두 번 반복(두 번째는 Size 입력 잔여값 "0.00020.0002" → "Enter a size greater than zero."로 버튼 비활성, 지우고 재입력). 서명 없음.
+- 확인한 것: 단위 - 데스크/에이전트 혼합에서 티켓 유지 + 다이얼로그에 데스크 카드만, 에이전트만이면 닫힘, ESC 뒤 새 id로 재오픈, 채팅 레일에서 데스크 행 제외, 배우 줄·사유 입력 유무. 라이브 - 2026-09-18 03:42 dev 인스턴스(RHC, BTC): 티켓 Long 0.0002 BTC → `dialog[lighter-desk-approval]`가 데스크 위에 열림, "Approve order / Nothing signs until you confirm.", 카드 REQUESTED BY "You, from the Lighter desk", Buy 0.0002 BTC · Market IOC · Worst 76903.8 · Notional ≈ 15.38, Reason 입력 없음. 같은 카드는 채팅 레일(`.lit-chat-shell`)에 없고 상단 AWAITING 1 배지의 닫힌 글로벌 패널에만 있다. Reject → 다이얼로그 닫히고 카드 0. 두 번 반복(두 번째는 Size 입력 잔여값 "0.00020.0002" → "Enter a size greater than zero."로 버튼 비활성, 지우고 재입력). 서명 없음.
 
 
 ### 7.15 티켓 게이트에 온보딩 체크리스트 (2026-09-18)
 
-"저게뭔말이야?" — 계좌 없는 지갑의 티켓은 문장 하나("first deposit, trading key, and fee approval, one approval card each")로 세 단계를 설명했는데, 어디까지 왔는지는 말하지 않았다. 사용자 선택: 문장에 붙여서 체크리스트로.
+"저게뭔말이야?" - 계좌 없는 지갑의 티켓은 문장 하나("first deposit, trading key, and fee approval, one approval card each")로 세 단계를 설명했는데, 어디까지 왔는지는 말하지 않았다. 사용자 선택: 문장에 붙여서 체크리스트로.
 
 - **읽기 IPC.** `vex:lighterTrading:getOnboardingChecklist` `{sessionId, environment}` → `{deposit, key, fee}` (`done | todo`, fee는 `not_required`도). main의 `lighter/onboarding-checklist.ts`가 낮은 조각들로 직접 조립한다: 세션 하이드레이트 → 지갑 주소(`resolveSelectedAddressForRead`), 퍼블릭 `readLighterAccount` → deposit, 볼트 스코프(`listUnlockedLighterTradingCredentialScopes`) → key, `inspectLighterFeeAuthorization` → fee(`ready`=done, `disabled`=not_required, 나머지 todo). 엔진 read 툴의 모델 텍스트는 파싱하지 않는다. 주소만 건너고 키 재료는 없다. 실패는 `provider.unavailable`(retryable)이고 티켓은 문장만 남긴다.
 - **렌더러.** `useLighterOnboardingChecklist`는 `accountGap === "not_onboarded"`일 때만 켜지고 20초마다 다시 읽는다(카드 승인 뒤 표시가 따라오게). `TradeTicket` 게이트의 `<ol class="lit-ticket-steps">`는 세 줄을 항상 나열하고(First deposit / Trading key / Fee approval), 읽기가 끝나면 Done / To do / Not needed를 붙인다. Done은 `--lit-positive`.
-- 확인한 것: 단위 — 리졸버 3(계좌 없음=전부 todo·fee 안 읽음, 볼트+fee ready=전부 done, disabled/blocked 매핑), IPC 4(DB 준비·실패 코드·잘못된 세션 거부), 티켓(마크 없는 초기 → 체크리스트 마크·`data-state`). 라이브 — 2026-09-18 03:33 dev 인스턴스(Core, 계좌 없는 지갑): 문장 아래 1 First deposit / 2 Trading key / 3 Fee approval 세 줄에 전부 To do, 그 밑 Connect Lighter.
+- 확인한 것: 단위 - 리졸버 3(계좌 없음=전부 todo·fee 안 읽음, 볼트+fee ready=전부 done, disabled/blocked 매핑), IPC 4(DB 준비·실패 코드·잘못된 세션 거부), 티켓(마크 없는 초기 → 체크리스트 마크·`data-state`). 라이브 - 2026-09-18 03:33 dev 인스턴스(Core, 계좌 없는 지갑): 문장 아래 1 First deposit / 2 Trading key / 3 Fee approval 세 줄에 전부 To do, 그 밑 Connect Lighter.
 
 ### 7.16 퍼널 카운트: Sentry 옵트인 사용자만 (2026-09-18)
 
 GTM에서 "배너 클릭 → 데스크 진입 → 첫 카드 → 승인" 중 어디서 새는지 볼 수 없었다. 사용자 선택: 새 동의 UI 없이 기존 Sentry 옵트인만 쓴다. 옵트인 안 한 사용자는 세지 않는다.
 
 - **채널.** `vex:telemetry:funnelStep` `{step: arena_banner | desk_enter | desk_card | desk_approve, environment}`. enum과 베뉴만 건너고 자유 텍스트는 없다. main(`ipc/telemetry.ts registerFunnelHandler`)은 `prefs.telemetry.enabled`가 꺼져 있으면 캡처도 로그도 없이 `recorded:false`.
-- **Sentry.** `captureFunnelStep`은 SDK가 초기화됐을 때만(=옵트인 뒤에만 로드) `captureMessage`. 태그 `funnelStep`/`environment`, fingerprint `["lighter.funnel", step, environment]`로 단계·베뉴당 이슈 하나, 메시지엔 프로세스 시퀀스 번호가 붙는다 — 앱이 켜둔 dedupe 통합이 같은 메시지 연속 두 건을 버리기 때문(Long 카드 두 번 → 한 번으로 세는 사고). 사용자 식별자는 없다: 단계별 집계 건수가 퍼널이고, 사용자 단위 전환율은 못 센다.
+- **Sentry.** `captureFunnelStep`은 SDK가 초기화됐을 때만(=옵트인 뒤에만 로드) `captureMessage`. 태그 `funnelStep`/`environment`, fingerprint `["lighter.funnel", step, environment]`로 단계·베뉴당 이슈 하나, 메시지엔 프로세스 시퀀스 번호가 붙는다 - 앱이 켜둔 dedupe 통합이 같은 메시지 연속 두 건을 버리기 때문(Long 카드 두 번 → 한 번으로 세는 사고). 사용자 식별자는 없다: 단계별 집계 건수가 퍼널이고, 사용자 단위 전환율은 못 센다.
 - **렌더러.** `lighterTrading/funnel.ts recordFunnelStep`(fire-and-forget, `renderer-error-report`처럼 브리지 옵셔널 체인). 배너 `openArenaDesk` → `arena_banner`(rhc), `enterLighterMode` → `desk_enter`(데스크 마지막 베뉴), 데스크 레인 `enqueued` → `desk_card`, 데스크 자신의 카드가 approved로 돌아오면 → `desk_approve`(에이전트 카드는 제외).
-- 확인한 것: 단위 — lifecycle(미초기화면 no-op, 연속 두 건 메시지 다름·태그/fingerprint 고정), IPC 3(동의 없음 드롭·동의 있음 전달·enum 밖 거부), 데스크 레인(enqueued 뒤 한 번·타인 카드 제외·approve 마지막 호출), 브리지 표면.
+- 확인한 것: 단위 - lifecycle(미초기화면 no-op, 연속 두 건 메시지 다름·태그/fingerprint 고정), IPC 3(동의 없음 드롭·동의 있음 전달·enum 밖 거부), 데스크 레인(enqueued 뒤 한 번·타인 카드 제외·approve 마지막 호출), 브리지 표면.

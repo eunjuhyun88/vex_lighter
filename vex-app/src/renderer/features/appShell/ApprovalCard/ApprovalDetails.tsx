@@ -4,7 +4,7 @@
  * Renders the approval title (`namespace:tool`), the risk + action stamps, the
  * reasoning preview, the critical-args well, and the inline error alert. Pure
  * presentation: it holds no state, owns no decision logic, and emits no events
- * — the two-step confirm gate and mutation wiring stay in `ApprovalCard`.
+ * - the two-step confirm gate and mutation wiring stay in `ApprovalCard`.
  * Testids, aria, and TEXT CONTENT are pinned by tests and stay verbatim; the
  * chrome speaks the landing's amber alert register (.ws-alert): mono-uppercase
  * title in --vex-pin over the card's pin fill.
@@ -30,10 +30,10 @@ import {
 /**
  * Human labels for the engine-injected, non-argument preview keys. A tool
  * ARGUMENT is normally shown under its own name (the user is verifying the
- * exact field that will be signed), but `vexFee` is not an argument — it is
+ * exact field that will be signed), but `vexFee` is not an argument - it is
  * Vex's own cost disclosure, and "VEXFEE" is not what a person calls it.
  * Tolerant reader: a key with no entry keeps its raw name, and an absent key
- * renders no row at all — never a placeholder or a zero.
+ * renders no row at all - never a placeholder or a zero.
  */
 const CRITICAL_ARG_LABELS: Readonly<Record<string, string>> = {
   vexFee: "Vex fee",
@@ -208,7 +208,7 @@ export interface ApprovalDetailsProps {
   readonly titleId: string;
   readonly namespace: string | null;
   readonly toolName: string;
-  /** `preview.criticalArgs` (JSON-safe scalars) or null — same shape the parent reads. */
+  /** `preview.criticalArgs` (JSON-safe scalars) or null - same shape the parent reads. */
   readonly criticalArgs: ApprovalPreview["criticalArgs"] | null;
   readonly inlineError: string | null;
   /**
@@ -220,7 +220,7 @@ export interface ApprovalDetailsProps {
    */
   readonly projectName?: string | null;
   /**
-   * S5 — one-shot signed glint in the stamp area after a successful approve.
+   * S5 - one-shot signed glint in the stamp area after a successful approve.
    * The ONLY light in the approvals flow; reject never sets it.
    */
   readonly signedGlint?: boolean;
@@ -267,8 +267,8 @@ export function ApprovalDetails({
       <header
         // Pinned to the top of the card's own scroll ancestor
         // (`ApprovalsRegion`'s bounded `overflow-y-auto` region): a long
-        // critical-args well — the combined key+fee card can run to dozens of
-        // rows — used to scroll the title (what is being signed) out of view
+        // critical-args well - the combined key+fee card can run to dozens of
+        // rows - used to scroll the title (what is being signed) out of view
         // before the user ever reached Approve/Reject. Same
         // `sticky top-0 z-10` + solid-background pattern `GlobalApprovals`
         // already uses for its `DialogHeader`.
@@ -285,7 +285,7 @@ export function ApprovalDetails({
             </span>
           </h3>
         </div>
-        {/* Stamp grammar — text content stays verbatim (tests pin it). */}
+        {/* Stamp grammar - text content stays verbatim (tests pin it). */}
         {summary.riskLevel !== null ? (
           <span
             data-testid="risk-chip"
@@ -304,7 +304,7 @@ export function ApprovalDetails({
             {summary.actionKind}
           </span>
         ) : null}
-        {/* The signed glint — plays once via stylesheet keyframes and ends
+        {/* The signed glint - plays once via stylesheet keyframes and ends
             transparent; unmounting early is fine (grace note, not contract). */}
         {signedGlint ? (
           <span
@@ -399,7 +399,7 @@ export function ApprovalDetails({
             ))}
           </dl>
         ) : null}
-        {/* Critical args — recessed well: the facts being signed for. */}
+        {/* Critical args - recessed well: the facts being signed for. */}
         {orderFacts !== null && criticalArgsWell !== null ? (
           <details className="group">
             <summary className="cursor-pointer select-none font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--vex-text-3)] hover:text-[var(--vex-text-2)]">

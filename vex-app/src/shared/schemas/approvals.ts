@@ -1,5 +1,5 @@
 /**
- * Approvals schemas — pending queue + history summaries.
+ * Approvals schemas - pending queue + history summaries.
  *
  * Renderer NEVER receives the raw `approval_queue.tool_call` /
  * `pending_context` JSONB. The main-side mapper in
@@ -87,7 +87,7 @@ export type ApprovalPermission = z.infer<typeof approvalPermissionSchema>;
  * Same 7 variants as `src/vex-agent/tools/taxonomy.ts::ACTION_KINDS`; kept
  * as a separate Zod schema here so the renderer schema layer does not
  * depend on the agent runtime. Adding a variant requires updating both
- * sides — `protocol-taxonomy.test.ts` + `registry-taxonomy.test.ts` pin
+ * sides - `protocol-taxonomy.test.ts` + `registry-taxonomy.test.ts` pin
  * the agent side; consumers of this Zod schema pin the renderer side.
  */
 export const approvalActionKindSchema = z.enum([
@@ -129,7 +129,7 @@ export type ApprovalDecision = z.infer<typeof approvalDecisionSchema>;
  * by migration 056.
  *
  * `indeterminate` is the honest terminal state for an approved dispatch whose
- * outcome could not be proven — the runtime stopped between taking the dispatch
+ * outcome could not be proven - the runtime stopped between taking the dispatch
  * slot and recording the result. It MUST be listed here: this schema is
  * `.strict()`-adjacent and validated on both sides of the IPC boundary, so an
  * unlisted value would make the approval unreadable by the renderer rather than
@@ -210,7 +210,7 @@ export const approvalSummaryDtoSchema = z
     /** First 200 chars of `approval_queue.reasoning`, no JSONB leakage. */
     reasoningPreview: z.string().max(APPROVAL_REASONING_PREVIEW_MAX),
     /**
-     * Puzzle 5 phase 2 — `approval_intents` companion fields. Populated only
+     * Puzzle 5 phase 2 - `approval_intents` companion fields. Populated only
      * when an intent row exists for this approval (back-compat with rows
      * predating migration 024); the mapper LEFT JOIN tolerates the absence.
      * Phase 3 wires the `decision` / `decisionReason` / `executionStatus`
@@ -248,7 +248,7 @@ export type ApprovalSummaryDto = z.infer<typeof approvalSummaryDtoSchema>;
 
 /**
  * App-wide pending-approvals DTO. Extends the FULL sanitized summary (so the
- * global inbox reuses `ApprovalCard` verbatim — dropping riskLevel/actionKind/
+ * global inbox reuses `ApprovalCard` verbatim - dropping riskLevel/actionKind/
  * preview would let a destructive action skip the two-step high-risk confirm)
  * and adds the joined session display name. `sessionTitle` is nullable: the
  * main-side query resolves `COALESCE(title, initial_goal)` and leaves null for
@@ -276,7 +276,7 @@ export type ApprovalPendingGlobalDto = z.infer<
 >;
 
 /**
- * Input for `approvals.listPendingAll` — the app-wide read takes no arguments.
+ * Input for `approvals.listPendingAll` - the app-wide read takes no arguments.
  * A strict empty object rejects any smuggled payload at both the preload gate
  * and the main-side envelope parse.
  */
@@ -322,14 +322,14 @@ export const APPROVAL_REJECT_REASON_MAX = 500;
 /**
  * Input for `approvals.approve` / `approvals.reject`.
  *
- * `reason` is optional and only consumed by reject — the engine's
+ * `reason` is optional and only consumed by reject - the engine's
  * `prepareReject` already accepted one, but nothing ever passed it, so every
  * rejection reached the model as "No reason provided".
  *
  * It is UNTRUSTED user text that ends up as model-visible transcript content,
  * so it is trimmed and hard-bounded here (validated at the preload gate AND
  * again in main, because `.strict()` schemas guard both) and additionally
- * stripped of control characters engine-side before it is rendered — a reason
+ * stripped of control characters engine-side before it is rendered - a reason
  * must never be able to forge lines that look like engine control banners.
  */
 export const approvalActionInputSchema = z
@@ -344,9 +344,9 @@ export type ApprovalActionInput = z.infer<typeof approvalActionInputSchema>;
  * Result contract for `approvals.approve`/`approvals.reject`.
  *
  * Puzzle 5 phase 3 fills the body. Field semantics:
- *   - `status`            — final `approval_queue.status` after the IPC call.
- *   - `resolvedAt`        — when the queue row was resolved (ISO-8601).
- *   - `runtimeOutcome`    — what actually happened to the agent, never a guess:
+ *   - `status`            - final `approval_queue.status` after the IPC call.
+ *   - `resolvedAt`        - when the queue row was resolved (ISO-8601).
+ *   - `runtimeOutcome`    - what actually happened to the agent, never a guess:
  *                           `'resumed'`       a continuation was claimed and
  *                                             the agent is being re-invoked
  *                                             (mission run OR chat session);
@@ -360,17 +360,17 @@ export type ApprovalActionInput = z.infer<typeof approvalActionInputSchema>;
  *                                             resolved decision);
  *                           `'unavailable'`   reserved for the old phase-1
  *                                             fail-closed path.
- *   - `executionStatus`   — tool dispatch outcome (`'succeeded'`/`'failed'`
+ *   - `executionStatus`   - tool dispatch outcome (`'succeeded'`/`'failed'`
  *                           for approve; null for reject). Independent of
  *                           `runtimeOutcome`: a mission run can resume even
  *                           after a failed dispatch (agent sees the error
  *                           in transcript and decides next).
- *   - `missionRunId`      — set when a mission run was involved; null for
+ *   - `missionRunId`      - set when a mission run was involved; null for
  *                           chat-session approvals.
- *   - `cached`            — `true` when the response is an idempotent
+ *   - `cached`            - `true` when the response is an idempotent
  *                           replay of a prior decision (no new dispatch).
- *   - `message`           — short human-readable summary for the UI toast.
- *   - `toolOutput`        — the dispatched tool's own text, present only when
+ *   - `message`           - short human-readable summary for the UI toast.
+ *   - `toolOutput`        - the dispatched tool's own text, present only when
  *                           this decision ran the tool. The desk lane has no
  *                           transcript, so this is where its outcome lives.
  */

@@ -26,10 +26,10 @@ This branch is based on the latest `Vex-Foundation/Vex` `main` (`09adada7c`, app
 
 Checks completed on this integration branch:
 
-- `pnpm run lint` — passed.
-- `pnpm run build` — passed, including main, preload, pty-host, renderer, and artifact checks.
-- AgentScan main tests — 8/8 passed.
-- AgentScan renderer tests — 15/15 passed.
+- `pnpm run lint` - passed.
+- `pnpm run build` - passed, including main, preload, pty-host, renderer, and artifact checks.
+- AgentScan main tests - 8/8 passed.
+- AgentScan renderer tests - 15/15 passed.
 - The full Lighter leverage test lane is blocked in this checkout because the Electron package has no downloaded `path.txt` binary; this is an environment setup issue, not a TypeScript or build failure.
 
 No real account order was submitted and no real account leverage was changed during validation.
