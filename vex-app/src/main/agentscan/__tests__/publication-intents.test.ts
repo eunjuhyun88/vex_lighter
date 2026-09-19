@@ -7,8 +7,14 @@ const manifest = {
   inputs: [], outputs: [{ name: "signal", description: "A signal" }], executionEnabled: false as const, strategy: { mode: "catalog" },
 };
 function request(): PublicationRequest {
-  const digest = publicationManifestDigest({ version: { manifest, manifestDigest: "", artifactDigest: "", semver: "1.0.0" } } as unknown as PublicationRequest);
-  return { schema: "agentscan.vex.publication-request/1", idempotencyKey: "11111111-1111-4111-8111-111111111111", agent: { slug: "read-only-strategy", displayName: "Read-only strategy", summary: "No execution" }, version: { semver: "1.0.0", manifest, manifestDigest: digest, artifactDigest: digest } };
+  const parsed = publicationRequestSchema.parse({
+    schema: "agentscan.vex.publication-request/1",
+    idempotencyKey: "11111111-1111-4111-8111-111111111111",
+    agent: { slug: "read-only-strategy", displayName: "Read-only strategy", summary: "No execution" },
+    version: { semver: "1.0.0", manifest, manifestDigest: "sha256:" + "0".repeat(64), artifactDigest: "sha256:" + "0".repeat(64) },
+  });
+  const digest = publicationManifestDigest(parsed);
+  return { ...parsed, version: { ...parsed.version, manifestDigest: digest, artifactDigest: digest } };
 }
 
 describe("publication intent registry", () => {

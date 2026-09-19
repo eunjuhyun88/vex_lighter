@@ -103,7 +103,8 @@ describe("AgentScan local read-only bridge", () => {
     const snapshot = await snapshotResponse.json() as { bridge?: { intentToken?: string } };
     const session = snapshot.bridge?.intentToken;
     expect(session).toEqual(expect.any(String));
-    const headers = { ...snapshotHeaders(), "X-AgentScan-Session": session! };
+    if (typeof session !== "string") throw new Error("snapshot did not return a session token");
+    const headers = { ...snapshotHeaders(), "X-AgentScan-Session": session };
     const response = await fetch(`${base}/v1/local-agent-publications`, {
       method: "POST", headers,
       body: JSON.stringify({ schema: "agentscan.local-publication-launch/1", idempotencyKey: "33333333-3333-4333-8333-333333333333" }),
@@ -125,7 +126,9 @@ describe("AgentScan local read-only bridge", () => {
       body: "{}",
     });
     const raw = await response.text();
-    const snapshot = JSON.parse(raw) as Record<string, any>;
+    const snapshot = JSON.parse(raw) as Record<string, unknown>;
+    const syncContract = snapshot.syncContract as { link: { state: string } };
+    const tools = snapshot.tools as Array<{ name: string }>;
 
     expect(response.status).toBe(200);
     expect(response.headers.get("access-control-allow-origin")).toBe(ORIGIN);
@@ -135,8 +138,8 @@ describe("AgentScan local read-only bridge", () => {
     expect(snapshot.mode).toBe("read-only");
     expect(snapshot.localOnly).toBe(true);
     expect(snapshot.projectRef).toBeNull();
-    expect(snapshot.syncContract.link.state).toBe("studio_ready");
-    expect(snapshot.tools.map((tool: { name: string }) => tool.name)).toEqual([
+    expect(syncContract.link.state).toBe("studio_ready");
+    expect(tools.map((tool) => tool.name)).toEqual([
       "pools__tokens_search",
       "virtuals__agents_discover",
     ]);
@@ -180,14 +183,15 @@ describe("AgentScan local read-only bridge", () => {
     const { base, bridge } = await running();
     const port = bridge.port();
     expect(port).not.toBeNull();
-    expect(isAllowedLoopbackHost(`127.0.0.1:${String(port)}`, port!)).toBe(true);
-    expect(isAllowedLoopbackHost(`localhost:${String(port)}`, port!)).toBe(false);
-    expect(isAllowedLoopbackHost(`attacker.example:${String(port)}`, port!)).toBe(false);
+    if (port === null) throw new Error("bridge did not expose a port");
+    expect(isAllowedLoopbackHost(`127.0.0.1:${String(port)}`, port)).toBe(true);
+    expect(isAllowedLoopbackHost(`localhost:${String(port)}`, port)).toBe(false);
+    expect(isAllowedLoopbackHost(`attacker.example:${String(port)}`, port)).toBe(false);
 
     const reboundStatus = await new Promise<number>((resolve, reject) => {
       const req = request({
         host: "127.0.0.1",
-        port: port!,
+        port,
         path: "/v1/snapshot",
         method: "POST",
         headers: { ...snapshotHeaders(), Host: `attacker.example:${String(port)}` },
@@ -378,7 +382,9 @@ describe("AgentScan local read-only bridge", () => {
 
 describe("sanitizeAgentscanTools", () => {
   it("deduplicates allowed read-only entries", () => {
-    expect(sanitizeAgentscanTools([...INVENTORY, INVENTORY[0]!])).toHaveLength(2);
+    const first = INVENTORY.at(0);
+    if (first === undefined) throw new Error("inventory fixture is empty");
+    expect(sanitizeAgentscanTools([...INVENTORY, first])).toHaveLength(2);
   });
 });
 

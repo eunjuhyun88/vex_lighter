@@ -25,7 +25,26 @@
  * with their tests. Their replacement is covered by the new centre and
  * component suites below.
  */
-export const DELETED_TEST_ALLOWLIST = [];
+export const DELETED_TEST_ALLOWLIST = [
+  {
+    path: "vex-app/src/renderer/features/appShell/lighterTrading/__tests__/LighterTradingDialog.test.tsx",
+    reason: "The modal trading surface was replaced by the Lighter centre and desk rail.",
+    coveredBy: [
+      "vex-app/src/renderer/features/appShell/lighterTrading/__tests__/LighterCenter.test.tsx",
+      "vex-app/src/renderer/features/appShell/lighterTrading/__tests__/desk-layout.test.ts",
+      "vex-app/src/renderer/features/appShell/lighterTrading/__tests__/DeskApprovalDialog.test.tsx",
+    ],
+  },
+  {
+    path: "vex-app/src/renderer/features/appShell/lighterTrading/__tests__/TradingWorkspace.test.tsx",
+    reason: "The workspace shell was replaced by the Lighter centre layout.",
+    coveredBy: [
+      "vex-app/src/renderer/features/appShell/lighterTrading/__tests__/LighterCenter.test.tsx",
+      "vex-app/src/renderer/features/appShell/lighterTrading/__tests__/desk-layout.test.ts",
+      "vex-app/src/renderer/features/appShell/lighterTrading/__tests__/responsive-metrics.test.ts",
+    ],
+  },
+];
 
 export const DELETED_TEST_ALLOWLIST_PATHS = new Set(
   DELETED_TEST_ALLOWLIST.map((entry) => entry.path),
