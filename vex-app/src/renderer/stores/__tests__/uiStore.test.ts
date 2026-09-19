@@ -258,6 +258,14 @@ describe("uiStore", () => {
     });
   });
 
+  it("completeSessionCreate remembers a desk session while Lighter is active", () => {
+    useUiStore.setState({ runtimeMode: "lighter", lighterSessionId: null });
+    useUiStore.getState().completeSessionCreate("lighter-session-1", null);
+    const state = useUiStore.getState();
+    expect(state.activeSessionId).toBe("lighter-session-1");
+    expect(state.lighterSessionId).toBe("lighter-session-1");
+  });
+
   it("completeSessionCreate is a no-op on createSessionInitialTurn when there was no pending message", () => {
     useUiStore.getState().completeSessionCreate("session-1", "high");
     expect(useUiStore.getState().createSessionInitialTurn).toBeNull();

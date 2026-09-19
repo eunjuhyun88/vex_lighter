@@ -1,4 +1,4 @@
-import { useEffect, type JSX } from "react";
+import { useEffect, useRef, type JSX } from "react";
 import { IconArrowUpRight } from "../../../components/icons/index.js";
 import { useLighterTradingAccount, useLighterTradingMarkets } from "../../../lib/api/lighter-trading.js";
 import { useSessionsList } from "../../../lib/api/sessions.js";
@@ -25,7 +25,9 @@ export function LighterChatRail(): JSX.Element {
   const activeSessionId = useUiStore((state) => state.activeSessionId);
   const setActiveSessionId = useUiStore((state) => state.setActiveSessionId);
   const openCreateSession = useUiStore((state) => state.openCreateSession);
+  const createSessionOpen = useUiStore((state) => state.createSessionOpen);
   const sessionsQuery = useSessionsList();
+  const autoCreatePrompted = useRef(false);
   // The desk resumes its latest conversation rather than opening on the
   // starters every time. Only an EMPTY selection is filled in: a session that
   // was just created is active before the list has refetched, and resetting
@@ -34,6 +36,17 @@ export function LighterChatRail(): JSX.Element {
   useEffect(() => {
     if (activeSessionId === null && latestSession !== null) setActiveSessionId(latestSession.id);
   }, [activeSessionId, latestSession, setActiveSessionId]);
+  // Entering Light it up is a session hand-off, not a second welcome screen.
+  // Resume the latest desk session when one exists; once the filtered read has
+  // settled empty, open the desk-scoped creator automatically. This prevents
+  // the user from landing on a live chart with no conversation or having to
+  // discover a second "Open desk" button before Vex can act.
+  useEffect(() => {
+    if (!sessionsQuery.data?.ok || sessionsQuery.isFetching) return;
+    if (activeSessionId !== null || latestSession !== null || createSessionOpen || autoCreatePrompted.current) return;
+    autoCreatePrompted.current = true;
+    openCreateSession();
+  }, [activeSessionId, createSessionOpen, latestSession, openCreateSession, sessionsQuery.data, sessionsQuery.isFetching]);
   const { environment, marketId, resolution } = useLighterAnalysisStore((state) => state.desk);
   const marketsQuery = useLighterTradingMarkets(environment, true);
   const marketList = marketsQuery.data?.ok === true ? marketsQuery.data.data : null;

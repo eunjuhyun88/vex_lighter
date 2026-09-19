@@ -546,6 +546,7 @@ export const useUiStore = create<UiState>()(
       completeSessionCreate: (sessionId, reasoningEffort) =>
         set((state) => ({
           activeSessionId: sessionId,
+          ...(state.runtimeMode === "lighter" ? { lighterSessionId: sessionId } : {}),
           createSessionOpen: false,
           createSessionInitialTurn:
             state.createSessionInitialTurn !== null
