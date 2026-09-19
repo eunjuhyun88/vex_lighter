@@ -9,11 +9,9 @@ import {
   deskChartScopeKey,
   deskQuickPrompts,
   deskScopeLabel,
-  deskScopeTag,
   deskStarterPrompts,
   type DeskContextScope,
 } from "./desk-context.js";
-import { useDeskScopeStore } from "./desk-scope.js";
 import { publishDeskSend } from "./desk-send-intent.js";
 import { latestDeskSession } from "./desk-session.js";
 
@@ -51,8 +49,9 @@ export function LighterChatRail(): JSX.Element {
   const marketsQuery = useLighterTradingMarkets(environment, true);
   const marketList = marketsQuery.data?.ok === true ? marketsQuery.data.data : null;
   const market = marketList?.markets.find((row) => row.marketId === marketId) ?? null;
-  // The chart's indicators and drawings ride along so the agent reads the
-  // chart the trader marked, not a bare symbol.
+  // The chart's indicators and drawings ride along for explicit chart
+  // questions, so the agent reads the chart the trader marked, not a bare
+  // symbol.
   const savedChart = useLighterAnalysisStore((state) =>
     market === null ? undefined : state.charts[deskChartScopeKey(environment, market.marketId)],
   );
@@ -64,15 +63,6 @@ export function LighterChatRail(): JSX.Element {
       resolution,
       ...(savedChart === undefined ? {} : { chart: { preferences: savedChart.preferences, drawings: savedChart.drawings } }),
     };
-
-  // Typed messages carry the desk's scope (see `composer-submit.ts`); the tag
-  // lives only while this rail is mounted.
-  const setDeskScopeTag = useDeskScopeStore((state) => state.setDeskScopeTag);
-  const tag = scope === null ? null : deskScopeTag(scope);
-  useEffect(() => {
-    setDeskScopeTag(tag);
-    return () => setDeskScopeTag(null);
-  }, [tag, setDeskScopeTag]);
 
   if (activeSessionId !== null) {
     return (
@@ -144,7 +134,7 @@ function DeskScopeStrip({ scope, sessionId }: {
   const prompts = deskQuickPrompts(scope, position);
   return (
     <div className="lit-desk-scope" data-vex-area="desk-scope">
-      <span className="lit-desk-scope-chip" title="Every message you type here carries this scope">
+      <span className="lit-desk-scope-chip" title="Quick prompts and explicit desk questions use this scope">
         {deskScopeLabel(scope)}
         {position === null ? null : <i>{position.side}</i>}
       </span>

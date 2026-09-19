@@ -35,8 +35,6 @@ import {
 import { showToast } from "../../lib/toast.js";
 import { useUiStore } from "../../stores/uiStore.js";
 import { useBoardAskIntentStore } from "./Board/board-ask-intent.js";
-import { withDeskScope } from "./lighterTrading/desk-context.js";
-import { useDeskScopeStore } from "./lighterTrading/desk-scope.js";
 import { useDeskSendIntentStore } from "./lighterTrading/desk-send-intent.js";
 import { readStopAvailability } from "./composer-submit/stop-availability.js";
 import { resolveStopAffordance } from "./composer-submit/stop-affordance.js";
@@ -466,7 +464,6 @@ export function useComposerSubmit(
     [sessionId, submitPending, freeTextGate, runStatus, runChatSubmit],
   );
 
-  const deskScopeTag = useDeskScopeStore((state) => state.tag);
   const onSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>): Promise<void> => {
       event.preventDefault();
@@ -482,10 +479,11 @@ export function useComposerSubmit(
         enterLighterMode();
         return;
       }
-      // On the Lighter desk a typed message carries the desk's scope, so
-      // "should I trim?" names the market on screen. Desk row actions and
-      // quick prompts enter through `dispatchMessage` with their own scope.
-      const message = deskScopeTag === null ? typed : withDeskScope(typed, deskScopeTag);
+      // Free-form text stays exactly as the user wrote it. Explicit desk
+      // questions (quick prompts, Review with Vex, and row actions) carry
+      // their own scope, so opening Lighter does not silently turn every
+      // conversational message into a market query.
+      const message = typed;
       // Welcome state (no session yet): Send opens the new-session modal
       // seeded with this draft PLUS the reasoning effort SNAPSHOTTED right
       // now (E3/D5) — unresolved capability at this instant → null → a
@@ -517,7 +515,6 @@ export function useComposerSubmit(
     [
       sessionId,
       draft,
-      deskScopeTag,
       effectiveReasoningEffort,
       freeTextGate,
       openCreateSession,

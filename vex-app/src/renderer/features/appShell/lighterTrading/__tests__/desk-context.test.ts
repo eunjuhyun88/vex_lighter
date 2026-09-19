@@ -5,9 +5,7 @@ import {
   deskChartScopeKey,
   deskQuickPrompts,
   deskScopeLabel,
-  deskScopeTag,
   describeChartNotes,
-  withDeskScope,
   type DeskChartNotes,
   type DeskContextScope,
 } from "../desk-context.js";
@@ -46,12 +44,7 @@ const POSITION: LighterTradingAccount["positions"][number] = {
 };
 
 describe("desk scope", () => {
-  it("tags a typed message with the exact scope and forbids inferring it from the symbol", () => {
-    const tag = deskScopeTag(SCOPE);
-    expect(tag).toBe(
-      "Lighter desk scope: environment=core, marketId=1, marketType=perp, symbol=BTC, candleInterval=15m. Do not infer the environment or product from the symbol.",
-    );
-    expect(withDeskScope("should I trim?", tag)).toBe(`should I trim?\n\n${tag}`);
+  it("labels the current scope without changing the free-form composer", () => {
     expect(deskScopeLabel(SCOPE)).toBe("Core · BTC · 15m");
     expect(deskScopeLabel({ ...SCOPE, environment: "rhc" })).toBe("RHC · BTC · 15m");
   });
@@ -92,12 +85,10 @@ describe("chart notes", () => {
     expect(bare.endsWith("do not infer the environment or product from the symbol.")).toBe(true);
   });
 
-  it("carries the notes into the prompts and the typed-message tag", () => {
+  it("carries the notes into explicit chart prompts", () => {
     const scope = { ...SCOPE, chart: CHART };
     const notes = describeChartNotes(CHART, MARKET);
     expect(buildDeskContext(scope).endsWith(` ${notes}`)).toBe(true);
-    expect(deskScopeTag(scope).endsWith(` ${notes}`)).toBe(true);
-    expect(deskScopeTag(SCOPE)).not.toContain("Drawings");
     for (const prompt of deskQuickPrompts(scope, null)) expect(prompt.message).toContain("horizontal line at 64000.0");
     expect(deskChartScopeKey("rhc", 7)).toBe("rhc:7");
   });

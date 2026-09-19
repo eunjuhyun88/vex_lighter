@@ -110,20 +110,6 @@ export function deskStarterPrompts(scope: DeskContextScope): readonly DeskStarte
   ];
 }
 
-/**
- * The one line appended to a message typed into the desk's composer. A typed
- * "should I trim?" has no market in it; the tag gives the agent the exact
- * scope without the full refresh instructions of {@link buildDeskContext}.
- */
-export function deskScopeTag({ environment, market, resolution, chart }: DeskContextScope): string {
-  const notes = describeChartNotes(chart, market);
-  return `Lighter desk scope: environment=${environment}, marketId=${market.marketId}, marketType=${market.marketType}, symbol=${market.symbol}, candleInterval=${resolution}. Do not infer the environment or product from the symbol.${notes === "" ? "" : ` ${notes}`}`;
-}
-
-export function withDeskScope(message: string, tag: string): string {
-  return `${message}\n\n${tag}`;
-}
-
 /** The chip's label: `Core · BTC · 15m`. */
 export function deskScopeLabel({ environment, market, resolution }: DeskContextScope): string {
   return `${LIGHTER_ENVIRONMENT_SHORT_LABELS[environment]} · ${market.symbol} · ${resolution}`;

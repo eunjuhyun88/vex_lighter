@@ -15,7 +15,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { readQueue, resetComposerQueueForTest } from "../../../lib/composer-queue.js";
 import { resetDraftsForTest } from "../../../lib/composer-drafts.js";
 import { notifications } from "../../../lib/notifications/index.js";
-import { useDeskScopeStore } from "../lighterTrading/desk-scope.js";
 import { publishDeskSend, useDeskSendIntentStore } from "../lighterTrading/desk-send-intent.js";
 
 const mockSteer = vi.fn();
@@ -78,14 +77,12 @@ beforeEach(() => {
     value: { chat: { steer: mockSteer } },
   });
   useDeskSendIntentStore.setState({ intent: null });
-  useDeskScopeStore.setState({ tag: null });
 });
 
 afterEach(() => {
   notifications.reset();
   cleanup();
   useDeskSendIntentStore.setState({ intent: null });
-  useDeskScopeStore.setState({ tag: null });
   Object.defineProperty(window, "vex", { configurable: true, writable: true, value: undefined });
 });
 
@@ -142,29 +139,19 @@ describe("Lighter desk row actions through the resident composer", () => {
   });
 });
 
-describe("Lighter desk scope on typed messages", () => {
-  const TAG = "Lighter desk scope: environment=core, marketId=1, symbol=BTC, candleInterval=15m.";
-
-  it("appends the desk's scope tag to what was typed, and only to what was typed", async () => {
-    useDeskScopeStore.setState({ tag: TAG });
+describe("Lighter desk free-form messages", () => {
+  it("submits exactly what was typed, without silently adding market context", async () => {
     const { result } = renderHook(() => useComposerSubmit(SESSION, AGENT_SESSION, false, null), { wrapper: providers(false) });
     act(() => { result.current.setDraft("should I trim?"); });
     submitThrough(result.current.onSubmit);
     await waitFor(() => { expect(mockMutateAsync).toHaveBeenCalledTimes(1); });
-    expect(mockMutateAsync.mock.calls[0]?.[0]).toEqual({ sessionId: SESSION, message: `should I trim?\n\n${TAG}` });
+    expect(mockMutateAsync.mock.calls[0]?.[0]).toEqual({ sessionId: SESSION, message: "should I trim?" });
     expect(result.current.draft).toBe("");
 
-    // A row action already names its scope: the tag is not appended twice.
+    // An explicit row action already names its scope.
     await act(async () => { publishDeskSend(SESSION, MESSAGE); });
     await waitFor(() => { expect(mockMutateAsync).toHaveBeenCalledTimes(2); });
     expect(mockMutateAsync.mock.calls[1]?.[0]).toEqual({ sessionId: SESSION, message: MESSAGE });
   });
 
-  it("outside the desk the typed message goes as is", async () => {
-    const { result } = renderHook(() => useComposerSubmit(SESSION, AGENT_SESSION, false, null), { wrapper: providers(false) });
-    act(() => { result.current.setDraft("gm vex"); });
-    submitThrough(result.current.onSubmit);
-    await waitFor(() => { expect(mockMutateAsync).toHaveBeenCalledTimes(1); });
-    expect(mockMutateAsync.mock.calls[0]?.[0]).toEqual({ sessionId: SESSION, message: "gm vex" });
-  });
 });
