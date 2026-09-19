@@ -371,6 +371,7 @@ export const CH = {
     setUserProfile: "vex:settings:setUserProfile",
     getSuperboardKey: "vex:settings:getSuperboardKey",
     generateSuperboardKey: "vex:settings:generateSuperboardKey",
+    rotateSuperboardKey: "vex:settings:rotateSuperboardKey",
   },
 
   /**
