@@ -1,6 +1,31 @@
 -- Repair development databases that recorded migration 155 before its
 -- portfolio snapshot columns were present. Every statement is additive and
 -- idempotent so the repair is safe on both old and complete installations.
+ALTER TABLE sessions
+  ADD COLUMN IF NOT EXISTS workspace TEXT;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'sessions'::regclass AND conname = 'sessions_workspace_check'
+  ) THEN
+    ALTER TABLE sessions
+      ADD CONSTRAINT sessions_workspace_check
+      CHECK (workspace IS NULL OR workspace IN ('lighter'));
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS sessions_workspace_live
+  ON sessions(scope, workspace, started_at DESC)
+  WHERE deleted_at IS NULL;
+
+ALTER TABLE approval_intents
+  DROP CONSTRAINT IF EXISTS approval_intents_origin_check;
+
+ALTER TABLE approval_intents
+  ADD CONSTRAINT approval_intents_origin_check
+  CHECK (origin IN ('agent', 'studio_mcp', 'desk'));
+
 ALTER TABLE proj_portfolio_snapshots
   ADD COLUMN IF NOT EXISTS partial boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS unresolved_chain_count integer NOT NULL DEFAULT 0
