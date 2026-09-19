@@ -2,7 +2,12 @@ import path from "node:path";
 import { homedir } from "node:os";
 
 const defaults = {
-  VEX_CONFIG_DIR: path.join(homedir(), "Library", "Application Support", "vex-dev"),
+  VEX_CONFIG_DIR:
+    process.platform === "win32"
+      ? path.join(process.env.APPDATA || path.join(homedir(), "AppData", "Roaming"), "vex-dev")
+      : process.platform === "darwin"
+        ? path.join(homedir(), "Library", "Application Support", "vex-dev")
+        : path.join(process.env.XDG_CONFIG_HOME || path.join(homedir(), ".config"), "vex-dev"),
   VEX_RENDERER_PORT: "5274",
   VEX_PG_PORT: "28532",
   VEX_EMBED_PORT: "28234",

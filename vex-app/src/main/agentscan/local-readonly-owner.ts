@@ -19,9 +19,14 @@ import { getAgentscanPublicationIntentRegistry } from "../ipc/agentscan-publicat
 export function setupAgentscanLocalReadonlyBridge(
   includeDevelopmentOrigins: boolean,
 ): () => Promise<void> {
+  const configuredPort = Number(process.env.VEX_AGENTSCAN_BRIDGE_PORT);
+  const port = Number.isInteger(configuredPort) && configuredPort >= 1 && configuredPort <= 65_535
+    ? configuredPort
+    : undefined;
   const isAvailable = (): boolean =>
     isSecretSessionUnlocked() && studioReadiness().ready;
   const bridge = createAgentscanLocalBridge({
+    ...(port === undefined ? {} : { port }),
     allowedOrigins: agentscanAllowedOrigins(includeDevelopmentOrigins),
     isAvailable,
     importIntents: getAgentscanImportIntentRegistry(),
