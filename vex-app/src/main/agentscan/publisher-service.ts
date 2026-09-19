@@ -7,7 +7,8 @@ import { createPublisherClient, installPackageMatchesManifest } from "./publishe
 import { createPublisherKeyStore, type PublisherKey } from "./publisher-key-store.js";
 import type { PublicationReceipt, PublicationRequest } from "@shared/schemas/agentscan-publication.js";
 import type { AgentScanManifest } from "@shared/schemas/agentscan-import.js";
-import type { LocalStrategyBinding, LocalStrategySummary } from "./local-strategy-runtime.js";
+import type { LocalStrategyBinding } from "./local-strategy-runtime.js";
+import type { LocalStrategySummary } from "@shared/schemas/agentscan-local-runtime.js";
 import {
   healthMatchesRuntime,
   PUBLIC_RUNTIME_BUNDLE_DECLARATION,

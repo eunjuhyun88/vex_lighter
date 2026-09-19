@@ -54,7 +54,6 @@ import { ShellDragHandle } from "./ShellDragHandle.js";
 import { ShellScreens } from "./screens/ShellScreens.js";
 import { LighterCenter } from "./lighterTrading/LighterCenter.js";
 import { LighterSidebar } from "./lighterTrading/LighterSidebar.js";
-import { LighterTradingHost } from "./lighterTrading/LighterTradingHost.js";
 import { AgentScanImportHost } from "./studio/AgentScanImportHost.js";
 import { AgentScanPublicationHost } from "./studio/AgentScanPublicationHost.js";
 import { LocalStrategyRuntimeHost } from "./studio/LocalStrategyRuntimeHost.js";

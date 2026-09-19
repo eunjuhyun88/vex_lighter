@@ -100,7 +100,7 @@ const finalDeclaration = {
   strategy: "portfolio_change_summary",
 } as const;
 
-export const PUBLIC_RUNTIME_BUNDLE_DECLARATION = parsePublicRuntimeDeclaration(finalDeclaration);
+export const PUBLIC_RUNTIME_BUNDLE_DECLARATION = parsePublicRuntimeDeclaration(finalDeclaration)!;
 if (PUBLIC_RUNTIME_BUNDLE_DECLARATION === null) throw new Error("public_runtime_declaration_invalid");
 export const PUBLIC_RUNTIME_BUNDLE_DIGEST = publicRuntimeBundleDigest(PUBLIC_RUNTIME_BUNDLE_DECLARATION);
 const FINAL_DIGEST = "sha256:2e494176e0d89de2a2b27e3c900c44380330e707e759c40d8446f3b90f7534f7";
